@@ -1,4 +1,4 @@
-import { TeamClockContextProps } from "@/components/types";
+import { ClockRect, TeamClockContextProps } from "@/components/types";
 import { createContext, PropsWithChildren, useContext, useState } from "react";
 
 const TeamClockContext = createContext<TeamClockContextProps | undefined>(
@@ -10,6 +10,8 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
   const [selectedTimezone, setSelectedTimezone] = useState<string | null>(null);
   const [employeeTimes, setEmployeeTimes] = useState<string[] | null>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [clockRect, setClockRect] = useState<ClockRect | null>(null);
+
   return (
     <TeamClockContext.Provider
       value={{
@@ -21,6 +23,8 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
         setEmployeeTimes,
         hoveredIndex,
         setHoveredIndex,
+        clockRect,
+        setClockRect,
       }}
     >
       {children}

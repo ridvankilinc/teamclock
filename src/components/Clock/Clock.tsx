@@ -1,13 +1,20 @@
 import { useTeamClock } from "@/context/TeamClockContext";
 import cn from "classnames";
 import moment from "moment-timezone";
-import { memo, useCallback, useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import Digital from "./Digital";
 
 const Clock = memo(function Clock() {
-  const { isOpen, selectedTimezone, employeeTimes, hoveredIndex } =
-    useTeamClock();
+  const {
+    isOpen,
+    selectedTimezone,
+    employeeTimes,
+    hoveredIndex,
+    setClockRect,
+  } = useTeamClock();
   const [time, setTime] = useState<Date>(new Date());
+  const clockRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -28,17 +35,19 @@ const Clock = memo(function Clock() {
   const minuteDegrees = ((minutes + seconds / 60) / 60) * 360;
   const hourDegrees = (((hours % 12) + minutes / 60) / 12) * 360;
 
-  const formatTime = useCallback(
-    (value: number) => value.toString().padStart(2, "0"),
-    []
-  );
-
   const timeToAngle = (timeString: string): number => {
     const [hours, minutes] = timeString.split(":").map(Number);
     return (((hours % 12) + minutes / 60) / 12) * 360;
   };
 
   const uniqueEmployeeTimes = Array.from(new Set(employeeTimes));
+
+  const isCurrentTimeEqualToEmployeeTime = (employeeTime: any) => {
+    const [employeeHours, employeeMinutes] = employeeTime
+      .split(":")
+      .map(Number);
+    return employeeHours === hours && employeeMinutes === minutes;
+  };
 
   const hoveredTime =
     hoveredIndex !== null && employeeTimes ? employeeTimes[hoveredIndex] : null;
@@ -110,8 +119,29 @@ const Clock = memo(function Clock() {
       transparent ${endAngle - startAngle}deg 360deg)`;
   };
 
+  useEffect(() => {
+    const updateClockRect = () => {
+      if (clockRef.current) {
+        const rect = clockRef.current.getBoundingClientRect();
+        setClockRect({
+          width: rect.width,
+          height: rect.height,
+          left: rect.left,
+          top: rect.top,
+        });
+      }
+    };
+
+    updateClockRect();
+    window.addEventListener("resize", updateClockRect);
+    return () => window.removeEventListener("resize", updateClockRect);
+  }, [setClockRect]);
+
   return (
-    <div className="relative flex items-center justify-center size-64 rounded-full mx-auto">
+    <div
+      ref={clockRef}
+      className="relative flex items-center justify-center size-64 rounded-full mx-auto"
+    >
       <div
         className="absolute inset-0 rounded-full"
         style={{
@@ -120,19 +150,20 @@ const Clock = memo(function Clock() {
       ></div>
       {[...Array(72)].map((_, i) => (
         <div
-          id={"clock-" + i}
           key={i}
-          className={cn("absolute top-0  w-[3px] h-6 bg-gray-500/80 rounded", {
-            " !bg-gray-500": i % 18 === 0,
-            "opacity-0 ": i % 6 !== 0,
-          })}
+          className={cn(
+            "absolute top-0 w-[3px] h-6 pt-4 bg-gray-500/80 rounded",
+            {
+              " !bg-gray-500": i % 18 === 0,
+              "opacity-0 ": i % 6 !== 0,
+            }
+          )}
           style={{
             transform: `rotate(${i * 5}deg)`,
             transformOrigin: "0 8rem",
           }}
         ></div>
       ))}
-
       {hoveredIndex !== null && employeeTimes && employeeTimes[hoveredIndex] ? (
         <div
           className={cn(
@@ -156,20 +187,23 @@ const Clock = memo(function Clock() {
           }}
         />
       )}
-      <AnimatePresence>
-        {isOpen &&
-          employeeTimes &&
-          uniqueEmployeeTimes.map((time, index) => (
-            <motion.div
+      {isOpen &&
+        employeeTimes &&
+        uniqueEmployeeTimes.map((time, index) => {
+          if (isCurrentTimeEqualToEmployeeTime(time)) {
+            return null;
+          }
+          return (
+            <div
               key={index}
               className="absolute z-20 w-1.5 h-16 origin-center bg-gray-400 rounded"
-              animate={{
+              style={{
                 transform: `rotate(${timeToAngle(time)}deg) translateY(-50%)`,
+                transition: "transform 0.3s ease-in-out",
               }}
-              transition={{ duration: 0.3 }}
             />
-          ))}
-      </AnimatePresence>
+          );
+        })}
 
       <div
         className="absolute z-10 w-1.5 h-36 rounded bg-gray-600 origin-center transition-transform duration-300"
@@ -187,12 +221,7 @@ const Clock = memo(function Clock() {
 
       <div className="absolute z-30 size-1.5 bg-red-400 rounded-full origin-center" />
 
-      {!isOpen && (
-        <div className="absolute bottom-12 text-xl font-mono text-gray-400 ">
-          {formatTime(time.getHours())}:{formatTime(time.getMinutes())}
-          {time.getHours() >= 12 ? "PM" : "AM"}
-        </div>
-      )}
+      {!isOpen && <Digital time={time} />}
     </div>
   );
 });

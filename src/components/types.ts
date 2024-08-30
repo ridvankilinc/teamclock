@@ -7,6 +7,8 @@ export interface TeamClockContextProps {
   setEmployeeTimes: React.Dispatch<React.SetStateAction<string[] | null>>;
   hoveredIndex: number | null;
   setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>;
+  clockRect: ClockRect | null;
+  setClockRect: React.Dispatch<React.SetStateAction<ClockRect | null>>;
 }
 
 export interface EmployeeProps {
@@ -14,4 +16,11 @@ export interface EmployeeProps {
   name: string;
   region: string;
   time?: string;
+}
+
+export interface ClockRect {
+  width: number;
+  height: number;
+  left: number;
+  top: number;
 }

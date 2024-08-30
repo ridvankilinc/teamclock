@@ -1,8 +1,6 @@
 import { TeamClockProvider, useTeamClock } from "@/context/TeamClockContext";
-import { memo, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import ToggleButton from "./ToggleButton";
-import Clock from "./Clock";
+import Clock from "./Clock/Clock";
 import cn from "classnames";
 import Employees from "./Employees/Employees";
 
@@ -29,44 +27,37 @@ const employees = [
     name: "Ahmet",
     region: "Yerevan, Armenia",
   },
-  //   {
-  //     avatar: "https://i.pravatar.cc/150?img=32",
-  //     name: "Liam",
-  //     region: "London, UK",
-  //   },
-  //   {
-  //     avatar: "https://i.pravatar.cc/150?img=32",
-  //     name: "Liam",
-  //     region: "London, UK",
-  //   },
 ];
 
 const TeamClocks = () => {
   const { isOpen } = useTeamClock();
+
   return (
-    <div className="flex rounded-2xl container max-w-3xl bg-white overflow-hidden max-h-96 ">
-      <motion.div
+    <div className="flex rounded-2xl container max-w-3xl bg-white overflow-hidden max-h-96">
+      <div
         className="flex flex-col p-8 w-full justify-center"
-        animate={{ minWidth: isOpen ? "100%" : "55%" }}
+        style={{
+          minWidth: isOpen ? "100%" : "55%",
+          transition: "min-width 0.1s ease-in-out",
+        }}
       >
         <div className="flex justify-between items-center gap-4 mb-8 max-w-80">
           <div className="text-2xl font-bold">Team</div>
           <ToggleButton />
         </div>
-        <div className="flex justify-center items-center test">
+        <div className={cn("flex justify-center items-center")}>
           <Clock />
         </div>
-      </motion.div>
-      <motion.div
-        className={cn("p-6 bg-gray-100 rounded-r-2xl ")}
-        animate={{
+      </div>
+      <div
+        className={cn("p-6 bg-gray-100 rounded-r-2xl")}
+        style={{
           minWidth: isOpen ? "0%" : "45%",
+          transition: "min-width 0.5s ease-in-out",
         }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        layout
       >
         <Employees employees={employees} />
-      </motion.div>
+      </div>
     </div>
   );
 };

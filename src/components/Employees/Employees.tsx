@@ -83,7 +83,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
     const timeoutId = scheduleNextUpdate();
 
     return () => clearTimeout(timeoutId);
-  }, [updateTimes, isOpen]);
+  }, [updateTimes]);
 
   const getTimeDifference = useCallback(
     (index: number): string => {
@@ -128,9 +128,10 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
           onMouseEnter={() => setHoveredIndex(i)}
           onMouseLeave={() => setHoveredIndex(null)}
           key={i}
+          index={i}
         />
       )),
-    [employees, times, hoveredIndex, getTimeDifference, setHoveredIndex, isOpen]
+    [employees, times, hoveredIndex, getTimeDifference, setHoveredIndex]
   );
 
   return (

@@ -6,10 +6,12 @@ const TimeDisplay = memo(function TimeDisplay({
   time,
   timeDiff,
   isHovered,
+  index,
 }: {
   time: string | undefined;
   timeDiff: string;
   isHovered: boolean;
+  index: number;
 }) {
   return (
     <motion.div
@@ -26,9 +28,9 @@ const TimeDisplay = memo(function TimeDisplay({
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <motion.div
-              className={cn("text-gray-400 font-mono", {
-                "text-green-400": timeDiff.startsWith("+"),
-                "text-red-400": timeDiff.startsWith("-"),
+              className={cn("text-gray-500 font-medium text-sm", {
+                "!text-green-400": timeDiff.startsWith("+"),
+                "!text-red-400": timeDiff.startsWith("-"),
               })}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -48,7 +50,10 @@ const TimeDisplay = memo(function TimeDisplay({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            <motion.div className="text-gray-400 font-mono">{time}</motion.div>
+            <motion.div className="text-gray-500 font-medium text-sm">
+              {time}
+              {Number(time?.split(":")[0]) < 12 ? "AM" : "PM"}
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
