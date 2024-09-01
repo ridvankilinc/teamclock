@@ -6,12 +6,10 @@ const TimeDisplay = memo(function TimeDisplay({
   time,
   timeDiff,
   isHovered,
-  index,
 }: {
   time: string | undefined;
   timeDiff: string;
   isHovered: boolean;
-  index: number;
 }) {
   return (
     <motion.div

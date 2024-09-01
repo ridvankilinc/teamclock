@@ -21,7 +21,6 @@ const employees = [
     name: "Ethan",
     region: "San Francisco, USA",
   },
-
   {
     avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
     name: "Ahmet",
@@ -38,7 +37,7 @@ const TeamClocks = () => {
         className="flex flex-col p-8 w-full justify-center"
         style={{
           minWidth: isOpen ? "100%" : "55%",
-          transition: "min-width 0.1s ease-in-out",
+          transition: "min-width 0.4s ease-in-out",
         }}
       >
         <div className="flex justify-between items-center gap-4 mb-8 max-w-80">
@@ -50,10 +49,10 @@ const TeamClocks = () => {
         </div>
       </div>
       <div
-        className={cn("p-6 bg-gray-100 rounded-r-2xl")}
+        className={cn("p-6 bg-gray-50 rounded-r-2xl")}
         style={{
           minWidth: isOpen ? "0%" : "45%",
-          transition: "min-width 0.5s ease-in-out",
+          transition: "0.4s ease-in-out",
         }}
       >
         <Employees employees={employees} />

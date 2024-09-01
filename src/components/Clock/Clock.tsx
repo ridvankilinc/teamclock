@@ -148,18 +148,14 @@ const Clock = memo(function Clock() {
           background: isOpen ? getEmployeeGradient() : getConicGradient(),
         }}
       ></div>
-      {[...Array(72)].map((_, i) => (
+      {[...Array(12)].map((_, i) => (
         <div
           key={i}
-          className={cn(
-            "absolute top-0 w-[3px] h-6 pt-4 bg-gray-500/80 rounded",
-            {
-              " !bg-gray-500": i % 18 === 0,
-              "opacity-0 ": i % 6 !== 0,
-            }
-          )}
+          className={cn("absolute top-0 w-1 h-6 pt-4 bg-gray-400 rounded", {
+            " !bg-gray-500": i % 3 === 0,
+          })}
           style={{
-            transform: `rotate(${i * 5}deg)`,
+            transform: `rotate(${i * 30}deg)`,
             transformOrigin: "0 8rem",
           }}
         ></div>
