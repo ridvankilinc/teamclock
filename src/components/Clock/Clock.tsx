@@ -1,7 +1,7 @@
 import { useTeamClock } from "@/context/TeamClockContext";
 import cn from "classnames";
 import moment from "moment-timezone";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Digital from "./Digital";
 
@@ -32,7 +32,7 @@ const Clock = memo(function Clock() {
   const hours = currentTime.hours();
 
   const secondDegrees = (seconds / 60) * 360;
-  const minuteDegrees = ((minutes + seconds / 60) / 60) * 360;
+  const minuteDegrees = (((minutes + seconds / 60) / 60) * 360) % 360;
   const hourDegrees = (((hours % 12) + minutes / 60) / 12) * 360;
 
   const timeToAngle = (timeString: string): number => {
@@ -97,9 +97,8 @@ const Clock = memo(function Clock() {
     }
 
     return `conic-gradient(from ${angle1}deg, 
-    transparent 0deg,
-    rgba(180, 180, 180, 0.3) ${angle2 - angle1}deg, 
-    rgba(180, 180, 180, 0.3) ${angle2 - angle1}deg, 
+    rgba(180, 180, 180, 0.075) ${(angle2 - angle1) / 2}deg, 
+    rgba(180, 180, 180, 0.35) ${angle2 - angle1}deg, 
     transparent ${angle2 - angle1}deg 360deg)`;
   };
 
@@ -114,7 +113,7 @@ const Clock = memo(function Clock() {
 
     return `conic-gradient(from ${startAngle}deg, 
       transparent 0deg,
-      rgba(180, 180, 180, 0.15)  ${(endAngle - startAngle) / 2}deg, 
+      rgba(180, 180, 180, 0.3)  ${(endAngle - startAngle) / 2}deg, 
       rgba(180, 180, 180, 0.3)  ${endAngle - startAngle}deg, 
       transparent ${endAngle - startAngle}deg 360deg)`;
   };
@@ -136,6 +135,8 @@ const Clock = memo(function Clock() {
     window.addEventListener("resize", updateClockRect);
     return () => window.removeEventListener("resize", updateClockRect);
   }, [setClockRect]);
+  console.log("hoveredangle", hoveredAngle);
+  console.log("hourdegrees", hourDegrees);
 
   return (
     <div
@@ -163,7 +164,7 @@ const Clock = memo(function Clock() {
       {hoveredIndex !== null && employeeTimes && employeeTimes[hoveredIndex] ? (
         <div
           className={cn(
-            "absolute z-20 w-1.5 h-24 rounded bg-black origin-center transition-transform duration-300",
+            "absolute z-20 w-1.5 h-24 rounded bg-black origin-center transition-transform duration-500",
             { "!h-16": isOpen }
           )}
           style={{
@@ -173,33 +174,38 @@ const Clock = memo(function Clock() {
       ) : (
         <div
           className={cn(
-            "absolute z-20 w-1.5 h-24 rounded bg-black origin-center transition-transform duration-300",
+            "absolute z-20 w-1.5 h-24 rounded bg-black origin-center transition-transform duration-500",
             { "!h-16": isOpen }
           )}
           style={{
             transform: `rotate(${hourDegrees}deg) translateY(${
               isOpen ? "-50%" : "-24%"
             })`,
+            transition: "0.4s ease-in-out",
           }}
         />
       )}
-      {isOpen &&
-        employeeTimes &&
-        uniqueEmployeeTimes.map((time, index) => {
-          if (isCurrentTimeEqualToEmployeeTime(time)) {
-            return null;
-          }
-          return (
-            <div
-              key={index}
-              className="absolute z-20 w-1.5 h-16 origin-center bg-gray-400 rounded"
-              style={{
-                transform: `rotate(${timeToAngle(time)}deg) translateY(-50%)`,
-                transition: "transform 0.3s ease-in-out",
-              }}
-            />
-          );
-        })}
+      {uniqueEmployeeTimes.map((time, index) => {
+        if (isCurrentTimeEqualToEmployeeTime(time)) {
+          return null;
+        }
+        return (
+          <motion.div
+            key={index}
+            className="absolute z-20 w-1.5 h-16 origin-center bg-gray-400 rounded"
+            initial={{
+              transform: `rotate(${hourDegrees}deg) translateY(-50%)`,
+            }}
+            animate={{
+              transform: isOpen
+                ? `rotate(${timeToAngle(time)}deg) translateY(-50%)`
+                : `rotate(${hourDegrees}deg) translateY(-50%)`,
+              opacity: isOpen ? 1 : 0,
+            }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+          />
+        );
+      })}
 
       <div
         className="absolute z-10 w-1.5 h-36 rounded bg-gray-600 origin-center transition-transform duration-300"
@@ -217,7 +223,7 @@ const Clock = memo(function Clock() {
 
       <div className="absolute z-30 size-1.5 bg-red-400 rounded-full origin-center" />
 
-      {!isOpen && <Digital time={time} />}
+      <Digital time={time} />
     </div>
   );
 });

@@ -8,8 +8,20 @@ import { useTeamClock } from "@/context/TeamClockContext";
 const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   const [times, setTimes] = useState<string[]>([]);
   const [timezones, setTimezones] = useState<string[]>([]);
+  const [sameTimeEmployees, setSameTimeEmployees] = useState<number[]>([]);
   const { setEmployeeTimes, hoveredIndex, setHoveredIndex, isOpen } =
     useTeamClock();
+
+  useEffect(() => {
+    const countSameTimeEmployees = () => {
+      const counts = times.map((time, index) => {
+        return times.filter((t, i) => t === time && i <= index).length;
+      });
+      setSameTimeEmployees(counts);
+    };
+
+    countSameTimeEmployees();
+  }, [times]);
 
   const findTimezone = useCallback((city: string, country: string): string => {
     const allTimeZones = getTimeZones();
@@ -115,9 +127,9 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
     [timezones]
   );
 
-  const memorizedEmployees = useMemo(
-    () =>
-      employees.map((item: EmployeeProps, i: number) => (
+  return (
+    <div className="flex flex-col gap-2 max-h-80 ">
+      {employees.map((item: EmployeeProps, i: number) => (
         <Card
           avatar={item.avatar}
           name={item.name}
@@ -129,13 +141,15 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
           onMouseLeave={() => setHoveredIndex(null)}
           key={i}
           index={i}
+          sameTimeCount={sameTimeEmployees[i]}
+          isLastWithSameTime={
+            i === employees.length - 1 ||
+            times[i] !== times[i + 1] ||
+            sameTimeEmployees[i] !== sameTimeEmployees[i + 1]
+          }
         />
-      )),
-    [employees, times, hoveredIndex, getTimeDifference, setHoveredIndex]
-  );
-
-  return (
-    <div className="flex flex-col gap-2 max-h-80">{memorizedEmployees}</div>
+      ))}
+    </div>
   );
 };
 

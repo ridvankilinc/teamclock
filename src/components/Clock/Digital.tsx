@@ -2,6 +2,7 @@ import { useTeamClock } from "@/context/TeamClockContext";
 import { useEffect, useState } from "react";
 import AnimatedDigit from "./DigitalAnimation/AnimatedDigit";
 import AnimatedPeriod from "./DigitalAnimation/AnimatedPeriod";
+import { motion } from "framer-motion";
 
 interface DigitalProps {
   time: Date;
@@ -14,7 +15,7 @@ interface TimeState {
 }
 
 const Digital = ({ time }: DigitalProps) => {
-  const { hoveredIndex, employeeTimes } = useTeamClock();
+  const { isOpen, hoveredIndex, employeeTimes } = useTeamClock();
   const [prevTime, setPrevTime] = useState<TimeState>({
     hour: 0,
     minute: 0,
@@ -51,7 +52,11 @@ const Digital = ({ time }: DigitalProps) => {
   }, [hour, minute, period]);
 
   return (
-    <div className="absolute bottom-12 text-xl font-mono text-gray-400 flex items-center justify-center">
+    <motion.div
+      className="absolute bottom-12 text-xl font-mono text-gray-400 flex items-center justify-center"
+      animate={{ opacity: isOpen ? 0 : 1 }}
+      transition={{ duration: 0.4, ease: "easeInOut" }}
+    >
       <AnimatedDigit
         digit={Math.floor(hour / 10)}
         prevDigit={Math.floor(prevTime.hour / 10)}
@@ -64,7 +69,7 @@ const Digital = ({ time }: DigitalProps) => {
       />
       <AnimatedDigit digit={minute % 10} prevDigit={prevTime.minute % 10} />
       <AnimatedPeriod period={period} prevPeriod={prevTime.period} />
-    </div>
+    </motion.div>
   );
 };
 

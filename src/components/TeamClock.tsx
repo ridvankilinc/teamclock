@@ -24,7 +24,7 @@ const employees = [
   {
     avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
     name: "Ahmet",
-    region: "Yerevan, Armenia",
+    region: "Istanbul, Turkiye",
   },
 ];
 
@@ -32,15 +32,15 @@ const TeamClocks = () => {
   const { isOpen } = useTeamClock();
 
   return (
-    <div className="flex rounded-2xl container max-w-3xl bg-white overflow-hidden max-h-96">
+    <div className="flex rounded-2xl container max-w-2xl bg-white overflow-hidden max-h-96">
       <div
         className="flex flex-col p-8 w-full justify-center"
         style={{
-          minWidth: isOpen ? "100%" : "55%",
+          minWidth: isOpen ? "100%" : "50%",
           transition: "min-width 0.4s ease-in-out",
         }}
       >
-        <div className="flex justify-between items-center gap-4 mb-8 max-w-80">
+        <div className="flex justify-between items-center gap-4 mb-8 max-w-64">
           <div className="text-2xl font-bold">Team</div>
           <ToggleButton />
         </div>
@@ -51,7 +51,7 @@ const TeamClocks = () => {
       <div
         className={cn("p-6 bg-gray-50 rounded-r-2xl")}
         style={{
-          minWidth: isOpen ? "0%" : "45%",
+          minWidth: isOpen ? "0%" : "50%",
           transition: "0.4s ease-in-out",
         }}
       >
