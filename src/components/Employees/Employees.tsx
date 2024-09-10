@@ -1,16 +1,22 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { EmployeeProps } from "../types";
 import { getTimeZones } from "@vvo/tzdb";
 import Card from "./components/Card";
 import moment from "moment-timezone";
 import { useTeamClock } from "@/context/TeamClockContext";
+import cn from "classnames";
 
 const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   const [times, setTimes] = useState<string[]>([]);
   const [timezones, setTimezones] = useState<string[]>([]);
   const [sameTimeEmployees, setSameTimeEmployees] = useState<number[]>([]);
+  const [sameTimeEmployeesNames, setSameTimeEmployeesNames] = useState<
+    EmployeeProps[][]
+  >([]);
   const { setEmployeeTimes, hoveredIndex, setHoveredIndex, isOpen } =
     useTeamClock();
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const countSameTimeEmployees = () => {
@@ -127,13 +133,26 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
     [timezones]
   );
 
+  useEffect(() => {
+    const groupSameTimeEmployees = () => {
+      const groups: { [key: string]: EmployeeProps[] } = {};
+      times.forEach((time, index) => {
+        if (!groups[time]) {
+          groups[time] = [];
+        }
+        groups[time].push(employees[index]);
+      });
+      setSameTimeEmployeesNames(Object.values(groups));
+    };
+
+    groupSameTimeEmployees();
+  }, [times, employees]);
+
   return (
-    <div className="flex flex-col gap-2 max-h-80 ">
+    <div ref={containerRef} className={cn("flex flex-col gap-1 ", {})}>
       {employees.map((item: EmployeeProps, i: number) => (
         <Card
-          avatar={item.avatar}
-          name={item.name}
-          region={item.region}
+          {...item}
           time={times[i]}
           timeDiff={getTimeDifference(i)}
           isHovered={hoveredIndex === i}
@@ -146,6 +165,11 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
             i === employees.length - 1 ||
             times[i] !== times[i + 1] ||
             sameTimeEmployees[i] !== sameTimeEmployees[i + 1]
+          }
+          sameTimeEmployees={
+            sameTimeEmployeesNames.find((group) =>
+              group.some((emp) => emp.name === item.name)
+            ) || []
           }
         />
       ))}

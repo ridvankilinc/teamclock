@@ -135,8 +135,6 @@ const Clock = memo(function Clock() {
     window.addEventListener("resize", updateClockRect);
     return () => window.removeEventListener("resize", updateClockRect);
   }, [setClockRect]);
-  console.log("hoveredangle", hoveredAngle);
-  console.log("hourdegrees", hourDegrees);
 
   return (
     <div

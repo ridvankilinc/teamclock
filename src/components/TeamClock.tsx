@@ -49,7 +49,7 @@ const TeamClocks = () => {
         </div>
       </div>
       <div
-        className={cn("p-6 bg-gray-50 rounded-r-2xl")}
+        className={cn("p-6 bg-gray-50 rounded-r-2xl pr-2")}
         style={{
           minWidth: isOpen ? "0%" : "50%",
           transition: "0.4s ease-in-out",

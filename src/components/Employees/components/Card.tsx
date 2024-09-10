@@ -1,16 +1,24 @@
 /* eslint-disable @next/next/no-img-element */
 import { EmployeeProps } from "@/components/types";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import TimeDisplay from "./TimeDisplay";
 import cn from "classnames";
 import { useTeamClock } from "@/context/TeamClockContext";
 import { AnimatePresence, motion } from "framer-motion";
 
-interface animateProps {
-  top?: string | number;
-  left?: string | number;
-  opacity?: number;
+interface CardProps extends EmployeeProps {
+  time: string;
+  timeDiff: string;
+  isHovered: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+  index: number;
+  sameTimeCount: number;
+  isLastWithSameTime: boolean;
+  sameTimeEmployees: EmployeeProps[];
 }
+
+import { useInView } from "react-intersection-observer";
 
 const Card = ({
   name,
@@ -24,23 +32,20 @@ const Card = ({
   index,
   sameTimeCount,
   isLastWithSameTime,
-}: EmployeeProps & {
-  time: any;
-  timeDiff: string;
-  isHovered: boolean;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-  index: number;
-  sameTimeCount: number;
-  isLastWithSameTime: boolean;
-}) => {
+  sameTimeEmployees,
+}: CardProps) => {
   const { isOpen, clockRect, employeeTimes } = useTeamClock();
   const [sameRadiusWidth, setSameRadiusWidth] = useState(0);
   const [sameTimeEmployeesCount, setSameTimeEmployeesCount] =
     useState<number>(0);
-  const cardRef = useRef<HTMLDivElement>(null);
   const [initialX, setInitialX] = useState<number>(0);
   const [initialY, setInitialY] = useState<number>(0);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLDivElement>(null);
 
   let divAnimate = { top: 0, left: 0 };
 
@@ -59,6 +64,24 @@ const Card = ({
   }, [isOpen, clockRect, employeeTimes, time, index]);
 
   useEffect(() => {
+    if (counterRef.current) {
+      const updateModalPosition = () => {
+        const rect = counterRef.current?.getBoundingClientRect();
+        if (rect) {
+          setModalPosition({
+            top: rect.top,
+            left: rect.left,
+          });
+        }
+      };
+
+      updateModalPosition();
+      window.addEventListener("resize", updateModalPosition);
+      return () => window.removeEventListener("resize", updateModalPosition);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     if (cardRef.current) {
       setInitialX(cardRef.current.getBoundingClientRect().left);
       setInitialY(cardRef.current.getBoundingClientRect().top);
@@ -66,7 +89,7 @@ const Card = ({
   }, []);
 
   const renderDivContent = useMemo(() => {
-    let animateContent: animateProps = { top: "auto", left: "auto" };
+    let animateContent: any = { top: "auto", left: "auto" };
 
     if (clockRect) {
       if (isOpen) {
@@ -101,7 +124,6 @@ const Card = ({
           className={cn("absolute flex justify-between p-2 min-w-72", {})}
           onMouseEnter={isOpen ? undefined : onMouseEnter}
           onMouseLeave={isOpen ? undefined : onMouseLeave}
-          initial={{ top: initialY, left: initialX }}
           animate={animateContent}
           transition={{ duration: 0.4, ease: "easeInOut" }}
           layout
@@ -156,21 +178,109 @@ const Card = ({
     divAnimate,
   ]);
 
+  const toggleModal = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setShowModal((prev) => !prev);
+    if (!showModal) {
+      updateModalPosition();
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        showModal &&
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node) &&
+        counterRef.current &&
+        !counterRef.current.contains(event.target as Node)
+      ) {
+        setShowModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showModal]);
+
+  const updateModalPosition = useCallback(() => {
+    if (counterRef.current) {
+      const rect = counterRef.current.getBoundingClientRect();
+      setModalPosition({
+        top: rect.top - rect.height / 2,
+        left: rect.left + 45,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showModal) {
+      updateModalPosition();
+    }
+  }, [showModal, updateModalPosition]);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateModalPosition);
+    return () => window.removeEventListener("resize", updateModalPosition);
+  }, [updateModalPosition]);
+
+  const renderModal = () => (
+    <AnimatePresence>
+      {showModal && (
+        <motion.div
+          ref={modalRef}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+          className="bg-white absolute shadow-md rounded-xl z-20 p-1 "
+          style={{
+            top: `${modalPosition.top}px`,
+            left: `${modalPosition.left}px`,
+          }}
+        >
+          <ul className="flex flex-col gap-2 custom-scrollbar max-h-60 overflow-x-hidden p-2">
+            {sameTimeEmployees.map((employee, index) => (
+              <li key={index} className="flex items-center space-x-3">
+                <img
+                  src={employee.avatar}
+                  alt={`${employee.name}'s avatar`}
+                  className="w-10 h-10 rounded-full"
+                />
+                <div className="flex items-start">
+                  <div>
+                    <p className="font-semibold">{employee.name}</p>
+                    <p className="text-sm text-gray-600">{employee.region}</p>
+                  </div>
+                  <p className="text-sm text-gray-500">{time}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   return (
     <div
       ref={cardRef}
       className={cn(
-        "cursor-default flex items-center rounded-2xl min-h-16 min-w-72",
+        "cursor-default flex items-center rounded-2xl min-h-16 min-w-72 ",
         {
-          "hover:bg-gray-100 border border-transparent hover:border-gray-200":
-            !isOpen,
+          "hover:bg-gray-100 hover:border ": !isOpen,
         }
       )}
     >
       {renderDivContent}
+      {renderModal()}
       {isOpen && sameTimeEmployeesCount > 2 && isLastWithSameTime && (
         <motion.div
-          className="size-10 rounded-full bg-gray-100  flex justify-center items-center absolute hover:bg-gray-200 z-10"
+          ref={counterRef}
+          onClick={toggleModal}
+          className="size-10 rounded-full bg-gray-100 flex justify-center items-center absolute hover:bg-gray-200 z-10 cursor-pointer"
           style={{ top: divAnimate.top, left: divAnimate.left, opacity: 0 }}
           animate={{ opacity: isOpen ? 1 : 0 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}

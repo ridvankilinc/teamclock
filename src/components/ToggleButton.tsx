@@ -1,9 +1,19 @@
+import { useState, useCallback } from "react";
 import cn from "classnames";
 import { useTeamClock } from "@/context/TeamClockContext";
 import { AnimatePresence } from "framer-motion";
 
 const ToggleButton = () => {
   const { isOpen, setIsOpen } = useTeamClock();
+  const [isDisabled, setIsDisabled] = useState(false);
+
+  const handleToggle = useCallback(() => {
+    if (!isDisabled) {
+      setIsOpen(!isOpen);
+      setIsDisabled(true);
+      setTimeout(() => setIsDisabled(false), 400);
+    }
+  }, [isDisabled, isOpen, setIsOpen]);
 
   return (
     <AnimatePresence>
@@ -12,7 +22,7 @@ const ToggleButton = () => {
           "relative flex items-center w-10 h-6 rounded-full cursor-pointer transition-colors duration-500 ease-in-out",
           { "bg-black": isOpen, "bg-gray-100": !isOpen }
         )}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
       >
         <div
           className={cn(
