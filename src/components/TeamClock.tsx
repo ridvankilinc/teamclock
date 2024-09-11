@@ -22,6 +22,26 @@ const employees = [
     region: "San Francisco, USA",
   },
   {
+    avatar: "https://i.pravatar.cc/150?img=58",
+    name: "Ethan",
+    region: "San Francisco, USA",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=58",
+    name: "Ethan",
+    region: "San Francisco, USA",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=58",
+    name: "Ethan",
+    region: "San Francisco, USA",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=58",
+    name: "Ethan",
+    region: "San Francisco, USA",
+  },
+  {
     avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
     name: "Ahmet",
     region: "Istanbul, Turkiye",
@@ -56,7 +76,7 @@ const TeamClocks = () => {
         }}
       >
         <div className="flex justify-between items-center gap-4 mb-8 max-w-64">
-          <div className="text-2xl font-bold">Team</div>
+          <div className="text-3xl tracking-tighter font-bold">Team</div>
           <ToggleButton />
         </div>
         <div className={cn("flex justify-center items-center")}>

@@ -159,7 +159,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
       <motion.div
         ref={containerRef}
         className={cn(
-          "flex flex-col gap-1 overflow-x-hidden max-h-80 custom-scrollbar",
+          "flex flex-col gap-1 overflow-x-hidden max-h-80 custom-scrollbar pr-2",
           {
             relative: !isOpen && animationComplete,
           }

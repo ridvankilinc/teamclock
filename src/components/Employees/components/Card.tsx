@@ -106,7 +106,7 @@ const Card = ({
         const x = clockCenterX + radius * Math.cos(angle);
 
         animateContent = {
-          top: y - 34,
+          top: y - 32,
           left: x + 12,
         };
 
@@ -130,7 +130,7 @@ const Card = ({
           transition={{ duration: 0.4, ease: "easeInOut" }}
           layout
         >
-          <div className={cn("flex gap-2 items-center")}>
+          <div className={cn("flex gap-2 items-center w-full")}>
             <motion.img
               src={avatar}
               alt={`${name} avatar's`}
@@ -139,26 +139,27 @@ const Card = ({
                 opacity: sameTimeEmployeesCount > 2 && isOpen ? 0 : 1,
               }}
             />
-            <motion.div
-              className={cn("flex flex-col")}
-              animate={{ opacity: isOpen ? 0 : 1 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
-            >
-              <h4 className="text-lg font-bold">{name}</h4>
-              <p className="text-gray-500 ">{region}</p>
-            </motion.div>
+            <div className="w-full tracking-tighter">
+              <motion.div
+                className={cn("flex justify-between")}
+                animate={{ opacity: isOpen ? 0 : 1 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+              >
+                <h4 className="text-lg font-bold ">{name}</h4>
+                <TimeDisplay
+                  time={time}
+                  timeDiff={timeDiff}
+                  isHovered={isHovered}
+                />
+              </motion.div>
+              <motion.div
+                animate={{ opacity: isOpen ? 0 : 1 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+              >
+                <p className="text-gray-500 text-sm ">{region}</p>
+              </motion.div>
+            </div>
           </div>
-
-          <motion.div
-            animate={{ opacity: isOpen ? 0 : 1 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-          >
-            <TimeDisplay
-              time={time}
-              timeDiff={timeDiff}
-              isHovered={isHovered}
-            />
-          </motion.div>
         </motion.div>
       </AnimatePresence>
     );
@@ -238,7 +239,7 @@ const Card = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="bg-white absolute shadow-md rounded-xl z-30 p-1 "
+          className="bg-white absolute shadow-md rounded-xl z-30 p-1 tracking-tighter"
           style={{
             top: `${modalPosition.top}px`,
             left: `${modalPosition.left}px`,
@@ -252,12 +253,12 @@ const Card = ({
                   alt={`${employee.name}'s avatar`}
                   className="w-10 h-10 rounded-full"
                 />
-                <div className="flex items-start">
-                  <div>
+                <div className="flex flex-col">
+                  <div className="flex justify-between">
                     <p className="font-semibold">{employee.name}</p>
-                    <p className="text-sm text-gray-600">{employee.region}</p>
+                    <p className="text-sm text-gray-500">{time}</p>
                   </div>
-                  <p className="text-sm text-gray-500">{time}</p>
+                  <p className="text-sm text-gray-600">{employee.region}</p>
                 </div>
               </li>
             ))}
@@ -271,9 +272,9 @@ const Card = ({
     <div
       ref={cardRef}
       className={cn(
-        "cursor-default flex items-center rounded-2xl min-h-16 min-w-72 ",
+        "cursor-default flex items-center rounded-2xl min-h-16 min-w-72 border border-transparent ",
         {
-          "hover:bg-gray-100 hover:border ": !isOpen,
+          "hover:bg-gray-100 hover:border-gray-200": !isOpen,
         }
       )}
     >
