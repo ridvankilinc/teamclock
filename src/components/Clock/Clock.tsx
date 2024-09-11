@@ -32,7 +32,7 @@ const Clock = memo(function Clock() {
   const hours = currentTime.hours();
 
   const secondDegrees = (seconds / 60) * 360;
-  const minuteDegrees = (((minutes + seconds / 60) / 60) * 360) % 360;
+  const minuteDegrees = ((minutes / 60) * 360) % 360;
   const hourDegrees = (((hours % 12) + minutes / 60) / 12) * 360;
 
   const timeToAngle = (timeString: string): number => {
@@ -155,7 +155,7 @@ const Clock = memo(function Clock() {
           })}
           style={{
             transform: `rotate(${i * 30}deg)`,
-            transformOrigin: "0 8rem",
+            transformOrigin: "50% 8rem",
           }}
         ></div>
       ))}

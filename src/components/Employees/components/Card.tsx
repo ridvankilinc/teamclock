@@ -18,8 +18,6 @@ interface CardProps extends EmployeeProps {
   sameTimeEmployees: EmployeeProps[];
 }
 
-import { useInView } from "react-intersection-observer";
-
 const Card = ({
   name,
   avatar,
@@ -34,7 +32,8 @@ const Card = ({
   isLastWithSameTime,
   sameTimeEmployees,
 }: CardProps) => {
-  const { isOpen, clockRect, employeeTimes } = useTeamClock();
+  const { isOpen, clockRect, employeeTimes, animationComplete } =
+    useTeamClock();
   const [sameRadiusWidth, setSameRadiusWidth] = useState(0);
   const [sameTimeEmployeesCount, setSameTimeEmployeesCount] =
     useState<number>(0);
@@ -42,8 +41,8 @@ const Card = ({
   const [initialY, setInitialY] = useState<number>(0);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
-  const modalRef = useRef<HTMLDivElement>(null);
 
+  const modalRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLDivElement>(null);
 
@@ -114,7 +113,10 @@ const Card = ({
         divAnimate.top = y - 20;
         divAnimate.left = x + 20;
       } else {
-        animateContent = { top: initialY, left: initialX };
+        animateContent = {
+          top: animationComplete ? "auto" : initialY,
+          left: animationComplete ? "auto" : initialX,
+        };
       }
     }
 
@@ -162,20 +164,21 @@ const Card = ({
     );
   }, [
     clockRect,
-    sameTimeEmployeesCount,
     isOpen,
     onMouseEnter,
     onMouseLeave,
-    initialY,
-    initialX,
     avatar,
     name,
+    sameTimeEmployeesCount,
     region,
     time,
     timeDiff,
     isHovered,
     sameRadiusWidth,
     divAnimate,
+    animationComplete,
+    initialY,
+    initialX,
   ]);
 
   const toggleModal = (event: React.MouseEvent) => {
@@ -235,7 +238,7 @@ const Card = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="bg-white absolute shadow-md rounded-xl z-20 p-1 "
+          className="bg-white absolute shadow-md rounded-xl z-30 p-1 "
           style={{
             top: `${modalPosition.top}px`,
             left: `${modalPosition.left}px`,

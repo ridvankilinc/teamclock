@@ -5,6 +5,7 @@ import Card from "./components/Card";
 import moment from "moment-timezone";
 import { useTeamClock } from "@/context/TeamClockContext";
 import cn from "classnames";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   const [times, setTimes] = useState<string[]>([]);
@@ -13,8 +14,13 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   const [sameTimeEmployeesNames, setSameTimeEmployeesNames] = useState<
     EmployeeProps[][]
   >([]);
-  const { setEmployeeTimes, hoveredIndex, setHoveredIndex, isOpen } =
-    useTeamClock();
+  const {
+    setEmployeeTimes,
+    hoveredIndex,
+    setHoveredIndex,
+    isOpen,
+    animationComplete,
+  } = useTeamClock();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -149,31 +155,41 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   }, [times, employees]);
 
   return (
-    <div ref={containerRef} className={cn("flex flex-col gap-1 ", {})}>
-      {employees.map((item: EmployeeProps, i: number) => (
-        <Card
-          {...item}
-          time={times[i]}
-          timeDiff={getTimeDifference(i)}
-          isHovered={hoveredIndex === i}
-          onMouseEnter={() => setHoveredIndex(i)}
-          onMouseLeave={() => setHoveredIndex(null)}
-          key={i}
-          index={i}
-          sameTimeCount={sameTimeEmployees[i]}
-          isLastWithSameTime={
-            i === employees.length - 1 ||
-            times[i] !== times[i + 1] ||
-            sameTimeEmployees[i] !== sameTimeEmployees[i + 1]
+    <AnimatePresence>
+      <motion.div
+        ref={containerRef}
+        className={cn(
+          "flex flex-col gap-1 overflow-x-hidden max-h-80 custom-scrollbar",
+          {
+            relative: !isOpen && animationComplete,
           }
-          sameTimeEmployees={
-            sameTimeEmployeesNames.find((group) =>
-              group.some((emp) => emp.name === item.name)
-            ) || []
-          }
-        />
-      ))}
-    </div>
+        )}
+      >
+        {employees.map((item: EmployeeProps, i: number) => (
+          <Card
+            {...item}
+            time={times[i]}
+            timeDiff={getTimeDifference(i)}
+            isHovered={hoveredIndex === i}
+            onMouseEnter={() => setHoveredIndex(i)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            key={i}
+            index={i}
+            sameTimeCount={sameTimeEmployees[i]}
+            isLastWithSameTime={
+              i === employees.length - 1 ||
+              times[i] !== times[i + 1] ||
+              sameTimeEmployees[i] !== sameTimeEmployees[i + 1]
+            }
+            sameTimeEmployees={
+              sameTimeEmployeesNames.find((group) =>
+                group.some((emp) => emp.name === item.name)
+              ) || []
+            }
+          />
+        ))}
+      </motion.div>
+    </AnimatePresence>
   );
 };
 

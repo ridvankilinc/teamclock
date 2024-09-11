@@ -9,6 +9,8 @@ export interface TeamClockContextProps {
   setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>;
   clockRect: ClockRect | null;
   setClockRect: React.Dispatch<React.SetStateAction<ClockRect | null>>;
+  animationComplete: boolean;
+  setAnimationComplete: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface EmployeeProps {

@@ -26,6 +26,21 @@ const employees = [
     name: "Ahmet",
     region: "Istanbul, Turkiye",
   },
+  {
+    avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
+    name: "Ahmet",
+    region: "Istanbul, Turkiye",
+  },
+  {
+    avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
+    name: "Ahmet",
+    region: "Istanbul, Turkiye",
+  },
+  {
+    avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
+    name: "Ahmet",
+    region: "Istanbul, Turkiye",
+  },
 ];
 
 const TeamClocks = () => {

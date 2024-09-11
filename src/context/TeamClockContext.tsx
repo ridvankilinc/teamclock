@@ -1,5 +1,11 @@
 import { ClockRect, TeamClockContextProps } from "@/components/types";
-import { createContext, PropsWithChildren, useContext, useState } from "react";
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 
 const TeamClockContext = createContext<TeamClockContextProps | undefined>(
   undefined
@@ -11,6 +17,18 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
   const [employeeTimes, setEmployeeTimes] = useState<string[] | null>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [clockRect, setClockRect] = useState<ClockRect | null>(null);
+  const [animationComplete, setAnimationComplete] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      const timer = setTimeout(() => {
+        setAnimationComplete(true);
+      }, 400);
+      return () => clearTimeout(timer);
+    } else {
+      setAnimationComplete(false);
+    }
+  }, [isOpen]);
 
   return (
     <TeamClockContext.Provider
@@ -25,6 +43,8 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
         setHoveredIndex,
         clockRect,
         setClockRect,
+        animationComplete,
+        setAnimationComplete,
       }}
     >
       {children}
@@ -35,7 +55,7 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
 export const useTeamClock = (): TeamClockContextProps => {
   const context = useContext(TeamClockContext);
   if (context === undefined) {
-    throw new Error("error");
+    throw new Error("useTeamClock must be used within a TeamClockProvider");
   }
   return context;
 };
