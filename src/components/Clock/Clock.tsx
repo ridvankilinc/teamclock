@@ -1,6 +1,6 @@
 import { useTeamClock } from "@/context/TeamClockContext";
 import cn from "classnames";
-import moment from "moment-timezone";
+import { DateTime } from "luxon";
 import { memo, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import Digital from "./Digital";
@@ -25,11 +25,12 @@ const Clock = memo(function Clock() {
   }, []);
 
   const currentTime = selectedTimezone
-    ? moment(time).tz(selectedTimezone)
-    : moment(time);
-  const seconds = currentTime.seconds();
-  const minutes = currentTime.minutes();
-  const hours = currentTime.hours();
+    ? DateTime.now().setZone(selectedTimezone)
+    : DateTime.now();
+
+  const seconds = currentTime.second;
+  const minutes = currentTime.minute;
+  const hours = currentTime.hour;
 
   const secondDegrees = (seconds / 60) * 360;
   const minuteDegrees = (((minutes + seconds / 60) / 60) * 360) % 360;

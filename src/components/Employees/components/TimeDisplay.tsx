@@ -11,6 +11,9 @@ const TimeDisplay = memo(function TimeDisplay({
   timeDiff: string;
   isHovered: boolean;
 }) {
+  const formattedTime = time
+    ? `${time} ${Number(time.split(":")[0]) < 12 ? "AM" : "PM"}`
+    : "";
   return (
     <motion.div
       className="relative overflow-hidden h-6 min-w-20 flex justify-end items-center"
@@ -49,8 +52,7 @@ const TimeDisplay = memo(function TimeDisplay({
             transition={{ duration: 0.2 }}
           >
             <motion.div className="text-gray-500 font-medium text-sm">
-              {time}
-              {Number(time?.split(":")[0]) < 12 ? "AM" : "PM"}
+              {formattedTime}
             </motion.div>
           </motion.div>
         )}

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { EmployeeProps } from "../types";
 import { getTimeZones } from "@vvo/tzdb";
 import Card from "./components/Card";
-import moment from "moment-timezone";
+import { DateTime } from "luxon";
 import { useTeamClock } from "@/context/TeamClockContext";
 import cn from "classnames";
 import { AnimatePresence, motion } from "framer-motion";
@@ -73,16 +73,16 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
     const newTimes = employees.map((employee: EmployeeProps) => {
       const [city, country] = employee.region.split(",").map((s) => s.trim());
       const timezone = findTimezone(city, country);
-      const currentTime = moment().tz(timezone);
-      return currentTime.format("HH:mm");
+      const currentTime = DateTime.now().setZone(timezone);
+      return currentTime.toFormat("HH:mm");
     });
     setTimes(newTimes);
 
     const clockTimes = employees.map((employee: EmployeeProps) => {
       const [city, country] = employee.region.split(",").map((s) => s.trim());
       const timezone = findTimezone(city, country);
-      const currentTime = moment().tz(timezone);
-      return currentTime.format("HH:mm");
+      const currentTime = DateTime.now().setZone(timezone);
+      return currentTime.toFormat("HH:mm");
     });
     setEmployeeTimes(clockTimes);
 
@@ -111,11 +111,11 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
 
   const getTimeDifference = useCallback(
     (index: number): string => {
-      const localTime = moment();
+      const localTime = DateTime.now();
       const employeeTimezone = timezones[index] || "UTC";
-      const employeeTime = moment().tz(employeeTimezone);
+      const employeeTime = DateTime.now().setZone(employeeTimezone);
 
-      const diffMinutes = employeeTime.utcOffset() - localTime.utcOffset();
+      const diffMinutes = employeeTime.offset - localTime.offset;
       const diffHours = Math.floor(diffMinutes / 60);
       const remainingMinutes = Math.abs(diffMinutes % 60);
 

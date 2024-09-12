@@ -12,12 +12,13 @@
     "@vvo/tzdb": "^6.142.0",
     "classnames": "^2.5.1",
     "framer-motion": "^11.3.30",
-    "moment-timezone": "^0.5.45",
+    "luxon": "^3.5.0",
     "next": "14.2.6",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@types/luxon": "^3.4.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
