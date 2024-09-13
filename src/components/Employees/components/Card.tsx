@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import TimeDisplay from "./TimeDisplay";
 import cn from "classnames";
 import { useTeamClock } from "@/context/TeamClockContext";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, delay, easeIn, motion } from "framer-motion";
 
 interface CardProps extends EmployeeProps {
   time: string;
@@ -16,9 +16,13 @@ interface CardProps extends EmployeeProps {
   sameTimeCount: number;
   isLastWithSameTime: boolean;
   sameTimeEmployees: EmployeeProps[];
+  visibleCards: EmployeeProps[];
+  setVisibleCards: React.Dispatch<React.SetStateAction<EmployeeProps[]>>;
+  containerRef: React.RefObject<HTMLDivElement>;
 }
 
 const Card = ({
+  id,
   name,
   avatar,
   region,
@@ -31,9 +35,17 @@ const Card = ({
   sameTimeCount,
   isLastWithSameTime,
   sameTimeEmployees,
+  visibleCards,
+  setVisibleCards,
+  containerRef,
 }: CardProps) => {
-  const { isOpen, clockRect, employeeTimes, animationComplete } =
-    useTeamClock();
+  const {
+    isOpen,
+    clockRect,
+    employeeTimes,
+    animationComplete,
+    isInitialRender,
+  } = useTeamClock();
   const [sameRadiusWidth, setSameRadiusWidth] = useState(0);
   const [sameTimeEmployeesCount, setSameTimeEmployeesCount] =
     useState<number>(0);
@@ -47,6 +59,52 @@ const Card = ({
   const counterRef = useRef<HTMLDivElement>(null);
 
   let divAnimate = { top: 0, left: 0 };
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleCards((prev) => {
+            if (!prev.some((e) => e.id === id) && !isOpen) {
+              return [...prev, { id, name, avatar, region, time, timeDiff }];
+            }
+            return prev;
+          });
+        } else {
+          setVisibleCards((prev) => {
+            if (!isOpen) {
+              return prev.filter((e) => e.id !== id);
+            }
+            return prev;
+          });
+        }
+      },
+      {
+        threshold: 0.3,
+        root: containerRef.current,
+      }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      if (cardRef.current) {
+        observer.unobserve(cardRef.current);
+      }
+    };
+  }, [
+    name,
+    avatar,
+    region,
+    time,
+    timeDiff,
+    setVisibleCards,
+    containerRef,
+    id,
+    isOpen,
+  ]);
 
   useEffect(() => {
     if (isOpen && clockRect) {
@@ -87,8 +145,14 @@ const Card = ({
     }
   }, []);
 
+  const isVisible = useMemo(
+    () => visibleCards.some((card) => card.id === id),
+    [visibleCards, id]
+  );
+
   const renderDivContent = useMemo(() => {
-    let animateContent: any = { top: "auto", left: "auto" };
+    let animateContent: any = {};
+    let transition = { duration: 0.4, ease: "easeInOut" };
 
     if (clockRect) {
       if (isOpen) {
@@ -108,26 +172,47 @@ const Card = ({
         animateContent = {
           top: y - 32,
           left: x + 12,
+          opacity: 1,
         };
 
         divAnimate.top = y - 20;
         divAnimate.left = x + 20;
+
+        if (!isVisible) {
+          transition = { duration: 0, ease: "easeInOut" };
+        }
       } else {
-        animateContent = {
-          top: animationComplete ? "auto" : initialY,
-          left: animationComplete ? "auto" : initialX,
-        };
+        if (id && Number(id) < 5) {
+          animateContent = {
+            top: animationComplete
+              ? "auto"
+              : isInitialRender
+              ? "auto"
+              : initialY,
+            left: animationComplete
+              ? "auto"
+              : isInitialRender
+              ? "auto"
+              : initialX,
+          };
+        } else {
+          animateContent = {
+            opacity: animationComplete ? 1 : 0,
+            top: animationComplete && "auto",
+            left: animationComplete && "auto",
+          };
+        }
       }
     }
 
     return (
       <AnimatePresence initial={false}>
         <motion.div
-          className={cn("absolute flex justify-between p-2 min-w-72", {})}
+          className={"absolute flex justify-between p-2 min-w-72"}
           onMouseEnter={isOpen ? undefined : onMouseEnter}
           onMouseLeave={isOpen ? undefined : onMouseLeave}
           animate={animateContent}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
+          transition={transition}
           layout
         >
           <div className={cn("flex gap-2 items-center w-full")}>
@@ -168,16 +253,19 @@ const Card = ({
     isOpen,
     onMouseEnter,
     onMouseLeave,
+    isVisible,
     avatar,
     name,
     sameTimeEmployeesCount,
-    region,
     time,
     timeDiff,
     isHovered,
+    region,
     sameRadiusWidth,
     divAnimate,
+    id,
     animationComplete,
+    isInitialRender,
     initialY,
     initialX,
   ]);

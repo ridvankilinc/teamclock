@@ -10,6 +10,7 @@ import { AnimatePresence, motion } from "framer-motion";
 const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   const [times, setTimes] = useState<string[]>([]);
   const [timezones, setTimezones] = useState<string[]>([]);
+  const [visibleCards, setVisibleCards] = useState<EmployeeProps[]>([]);
   const [sameTimeEmployees, setSameTimeEmployees] = useState<number[]>([]);
   const [sameTimeEmployeesNames, setSameTimeEmployeesNames] = useState<
     EmployeeProps[][]
@@ -20,6 +21,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
     setHoveredIndex,
     isOpen,
     animationComplete,
+    isInitialRender,
   } = useTeamClock();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -161,7 +163,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
         className={cn(
           "flex flex-col gap-1 overflow-x-hidden max-h-80 custom-scrollbar pr-2",
           {
-            relative: !isOpen && animationComplete,
+            relative: isInitialRender || (!isOpen && animationComplete),
           }
         )}
       >
@@ -169,6 +171,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
           <Card
             {...item}
             time={times[i]}
+            id={i.toString()}
             timeDiff={getTimeDifference(i)}
             isHovered={hoveredIndex === i}
             onMouseEnter={() => setHoveredIndex(i)}
@@ -186,6 +189,9 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
                 group.some((emp) => emp.name === item.name)
               ) || []
             }
+            visibleCards={visibleCards}
+            setVisibleCards={setVisibleCards}
+            containerRef={containerRef}
           />
         ))}
       </motion.div>

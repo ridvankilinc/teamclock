@@ -11,9 +11,12 @@ export interface TeamClockContextProps {
   setClockRect: React.Dispatch<React.SetStateAction<ClockRect | null>>;
   animationComplete: boolean;
   setAnimationComplete: React.Dispatch<React.SetStateAction<boolean>>;
+  isInitialRender: boolean;
+  setIsInitialRender: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface EmployeeProps {
+  id?: string;
   avatar: string;
   name: string;
   region: string;

@@ -18,6 +18,13 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [clockRect, setClockRect] = useState<ClockRect | null>(null);
   const [animationComplete, setAnimationComplete] = useState<boolean>(false);
+  const [isInitialRender, setIsInitialRender] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsInitialRender(false);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -45,6 +52,8 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
         setClockRect,
         animationComplete,
         setAnimationComplete,
+        isInitialRender,
+        setIsInitialRender,
       }}
     >
       {children}
