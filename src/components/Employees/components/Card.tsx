@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import TimeDisplay from "./TimeDisplay";
 import cn from "classnames";
 import { useTeamClock } from "@/context/TeamClockContext";
-import { AnimatePresence, delay, easeIn, motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface CardProps extends EmployeeProps {
   time: string;
@@ -108,9 +108,15 @@ const Card = ({
 
   useEffect(() => {
     if (isOpen && clockRect) {
-      const sameTimeEmployees = employeeTimes
-        ?.slice(0, index)
-        .filter((t) => t === time).length;
+      const sameTimeEmployees = employeeTimes?.slice(0, index).filter((t) => {
+        const currentHour = parseInt(time.split(":")[0]);
+        const tHour = parseInt(t.split(":")[0]);
+        return (
+          currentHour % 12 === tHour % 12 &&
+          time.split(":")[1] === t.split(":")[1]
+        );
+      }).length;
+
       if (sameTimeEmployees) {
         setSameTimeEmployeesCount(sameTimeEmployees);
         sameTimeEmployees < 3
@@ -179,7 +185,14 @@ const Card = ({
         divAnimate.left = x + 20;
 
         if (!isVisible) {
-          transition = { duration: 0, ease: "easeInOut" };
+          animateContent = {
+            ...animateContent,
+            opacity: [0, 1],
+          };
+          transition = {
+            opacity: { duration: 0.4, ease: "easeInOut" },
+            default: { duration: 0, ease: "easeInOut" },
+          };
         }
       } else {
         if (id && Number(id) < 5) {
@@ -209,8 +222,8 @@ const Card = ({
       <AnimatePresence initial={false}>
         <motion.div
           className={"absolute flex justify-between p-2 min-w-72"}
-          onMouseEnter={isOpen ? undefined : onMouseEnter}
-          onMouseLeave={isOpen ? undefined : onMouseLeave}
+          onMouseEnter={animationComplete ? onMouseEnter : undefined}
+          onMouseLeave={animationComplete ? onMouseLeave : undefined}
           animate={animateContent}
           transition={transition}
           layout
@@ -318,58 +331,77 @@ const Card = ({
     return () => window.removeEventListener("resize", updateModalPosition);
   }, [updateModalPosition]);
 
-  const renderModal = () => (
-    <AnimatePresence>
-      {showModal && (
-        <motion.div
-          ref={modalRef}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="bg-white absolute shadow-md rounded-xl z-30 p-1 tracking-tighter"
-          style={{
-            top: `${modalPosition.top}px`,
-            left: `${modalPosition.left}px`,
-          }}
-        >
-          <ul className="flex flex-col gap-2 custom-scrollbar max-h-60 overflow-x-hidden p-2">
-            {sameTimeEmployees.map((employee, index) => (
-              <li key={index} className="flex items-center space-x-3">
-                <img
-                  src={employee.avatar}
-                  alt={`${employee.name}'s avatar`}
-                  className="w-10 h-10 rounded-full"
-                />
-                <div className="flex flex-col">
-                  <div className="flex justify-between">
-                    <p className="font-semibold">{employee.name}</p>
-                    <p className="text-sm text-gray-500">{time}</p>
-                  </div>
-                  <p className="text-sm text-gray-600">{employee.region}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+  const renderModal = () => {
+    const filteredEmployees = sameTimeEmployees.filter((employee) => {
+      if (!employee || !employee.time) {
+        return false;
+      }
+      const employeeTime = employee.time.split(":");
+      const currentTime = time.split(":");
+      if (employeeTime.length !== 2 || currentTime.length !== 2) {
+        return false;
+      }
+      const isSameTime =
+        parseInt(employeeTime[0]) % 12 === parseInt(currentTime[0]) % 12 &&
+        employeeTime[1] === currentTime[1];
+      return isSameTime;
+    });
 
+    return (
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            ref={modalRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="bg-white absolute shadow-md rounded-xl z-30 p-1 tracking-tighter"
+            style={{
+              top: `${modalPosition.top}px`,
+              left: `${modalPosition.left}px`,
+            }}
+          >
+            <ul className="flex flex-col gap-2 custom-scrollbar max-h-60 overflow-x-hidden p-2">
+              {filteredEmployees.map((employee, index) => (
+                <li key={index} className="flex items-center space-x-3">
+                  <img
+                    src={employee.avatar}
+                    alt={`${employee.name}'s avatar`}
+                    className="w-10 h-10 rounded-full"
+                  />
+                  <div className="flex flex-col w-full">
+                    <div className="flex justify-between">
+                      <p className="font-semibold">{employee.name}</p>
+                      <p className="text-sm text-gray-500">{employee.time}</p>
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">
+                      {employee.region}
+                    </p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  };
   return (
     <div
       ref={cardRef}
       className={cn(
         "cursor-default flex items-center rounded-2xl min-h-16 min-w-72 border border-transparent ",
         {
-          "hover:bg-gray-100 hover:border-gray-200": !isOpen,
+          "hover:bg-gray-100 hover:border-gray-200":
+            !isOpen && animationComplete,
         }
       )}
     >
       {renderDivContent}
       {renderModal()}
       {isOpen && sameTimeEmployeesCount > 2 && isLastWithSameTime && (
-        <motion.div
+        <motion.button
           ref={counterRef}
           onClick={toggleModal}
           className="size-10 rounded-full bg-gray-100 flex justify-center items-center absolute hover:bg-gray-200 z-10 cursor-pointer"
@@ -378,7 +410,7 @@ const Card = ({
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
           +{sameTimeCount - 2}
-        </motion.div>
+        </motion.button>
       )}
     </div>
   );

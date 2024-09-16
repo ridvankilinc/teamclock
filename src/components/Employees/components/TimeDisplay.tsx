@@ -29,7 +29,7 @@ const TimeDisplay = memo(function TimeDisplay({
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
             <motion.div
-              className={cn("text-gray-500 font-medium text-sm", {
+              className={cn("text-gray-400 font-medium text-sm", {
                 "!text-green-400": timeDiff.startsWith("+"),
                 "!text-red-400": timeDiff.startsWith("-"),
               })}
@@ -51,7 +51,7 @@ const TimeDisplay = memo(function TimeDisplay({
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
           >
-            <motion.div className="text-gray-500 font-medium text-sm">
+            <motion.div className="text-gray-400 font-medium text-sm">
               {formattedTime}
             </motion.div>
           </motion.div>

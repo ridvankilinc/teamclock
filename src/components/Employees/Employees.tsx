@@ -11,10 +11,9 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   const [times, setTimes] = useState<string[]>([]);
   const [timezones, setTimezones] = useState<string[]>([]);
   const [visibleCards, setVisibleCards] = useState<EmployeeProps[]>([]);
+  const [employeeTimezones, setEmployeeTimezones] = useState<string[]>([]);
   const [sameTimeEmployees, setSameTimeEmployees] = useState<number[]>([]);
-  const [sameTimeEmployeesNames, setSameTimeEmployeesNames] = useState<
-    EmployeeProps[][]
-  >([]);
+  const [_, setSameTimeEmployeesNames] = useState<EmployeeProps[][]>([]);
   const {
     setEmployeeTimes,
     hoveredIndex,
@@ -29,7 +28,18 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   useEffect(() => {
     const countSameTimeEmployees = () => {
       const counts = times.map((time, index) => {
-        return times.filter((t, i) => t === time && i <= index).length;
+        return times.filter((t, i) => {
+          const currentHour = parseInt(time.split(":")[0]);
+          const tHour = parseInt(t.split(":")[0]);
+          const currentMinute = time.split(":")[1];
+          const tMinute = t.split(":")[1];
+
+          return (
+            currentHour % 12 === tHour % 12 &&
+            currentMinute === tMinute &&
+            i <= index
+          );
+        }).length;
       });
       setSameTimeEmployees(counts);
     };
@@ -38,62 +48,65 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   }, [times]);
 
   const findTimezone = useCallback((city: string, country: string): string => {
-    const allTimeZones = getTimeZones();
-    const lowerCity = city.toLowerCase();
-    const lowerCountry = country.toLowerCase();
+    try {
+      const allTimeZones = getTimeZones();
+      const lowerCity = city.toLowerCase();
+      const lowerCountry = country.toLowerCase();
 
-    const cityMatch = allTimeZones.find((tz) =>
-      tz.mainCities.some((c) => c.toLowerCase() === lowerCity)
-    );
-    if (cityMatch) return cityMatch.name;
+      const cityMatch = allTimeZones.find((tz) =>
+        tz.mainCities.some((c) => c.toLowerCase() === lowerCity)
+      );
 
-    const countryMatch = allTimeZones.find((tz) =>
-      tz.countryName.toLowerCase().includes(lowerCountry)
-    );
-    if (countryMatch) return countryMatch.name;
+      if (cityMatch) return cityMatch.name;
 
-    return allTimeZones.reduce(
-      (closest, tz) => {
-        const cityScore = tz.mainCities.some(
-          (c) =>
-            lowerCity.includes(c.toLowerCase()) ||
-            c.toLowerCase().includes(lowerCity)
-        )
-          ? 1
-          : 0;
-        const countryScore = tz.countryName.toLowerCase().includes(lowerCountry)
-          ? 1
-          : 0;
-        const score = cityScore + countryScore;
-        return score > closest.score ? { name: tz.name, score } : closest;
-      },
-      { name: "UTC", score: -1 }
-    ).name;
+      const countryMatch = allTimeZones.find((tz) =>
+        tz.countryName.toLowerCase().includes(lowerCountry)
+      );
+
+      if (countryMatch) return countryMatch.name;
+
+      const closestMatch = allTimeZones.reduce(
+        (closest, tz) => {
+          const cityScore = tz.mainCities.some(
+            (c) =>
+              lowerCity.includes(c.toLowerCase()) ||
+              c.toLowerCase().includes(lowerCity)
+          )
+            ? 1
+            : 0;
+          const countryScore = tz.countryName
+            .toLowerCase()
+            .includes(lowerCountry)
+            ? 1
+            : 0;
+          const score = cityScore + countryScore;
+          return score > closest.score ? { name: tz.name, score } : closest;
+        },
+        { name: "UTC", score: -1 }
+      );
+
+      return closestMatch.name;
+    } catch (error) {
+      return "UTC";
+    }
   }, []);
 
-  const updateTimes = useCallback(() => {
-    const newTimes = employees.map((employee: EmployeeProps) => {
+  useEffect(() => {
+    const timezones = employees.map((employee: EmployeeProps) => {
       const [city, country] = employee.region.split(",").map((s) => s.trim());
-      const timezone = findTimezone(city, country);
+      return findTimezone(city, country);
+    });
+    setEmployeeTimezones(timezones);
+  }, [employees, findTimezone]);
+
+  const updateTimes = useCallback(() => {
+    const newTimes = employeeTimezones.map((timezone) => {
       const currentTime = DateTime.now().setZone(timezone);
       return currentTime.toFormat("HH:mm");
     });
     setTimes(newTimes);
-
-    const clockTimes = employees.map((employee: EmployeeProps) => {
-      const [city, country] = employee.region.split(",").map((s) => s.trim());
-      const timezone = findTimezone(city, country);
-      const currentTime = DateTime.now().setZone(timezone);
-      return currentTime.toFormat("HH:mm");
-    });
-    setEmployeeTimes(clockTimes);
-
-    const newTimezones = employees.map((employee: EmployeeProps) => {
-      const [city, country] = employee.region.split(",").map((s) => s.trim());
-      return findTimezone(city, country);
-    });
-    setTimezones(newTimezones);
-  }, [employees, findTimezone, setEmployeeTimes]);
+    setEmployeeTimes(newTimes);
+  }, [employeeTimezones, setEmployeeTimes]);
 
   useEffect(() => {
     const scheduleNextUpdate = () => {
@@ -114,7 +127,8 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   const getTimeDifference = useCallback(
     (index: number): string => {
       const localTime = DateTime.now();
-      const employeeTimezone = timezones[index] || "UTC";
+
+      const employeeTimezone = employeeTimezones[index] || "UTC";
       const employeeTime = DateTime.now().setZone(employeeTimezone);
 
       const diffMinutes = employeeTime.offset - localTime.offset;
@@ -138,7 +152,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
 
       return `${diffHours >= 0 ? "+" : "-"}${diffString}`;
     },
-    [timezones]
+    [employeeTimezones]
   );
 
   useEffect(() => {
@@ -161,7 +175,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
       <motion.div
         ref={containerRef}
         className={cn(
-          "flex flex-col gap-1 overflow-x-hidden max-h-80 custom-scrollbar pr-2",
+          "flex flex-col gap-1 overflow-x-hidden max-h-96 custom-scrollbar pr-2",
           {
             relative: isInitialRender || (!isOpen && animationComplete),
           }
@@ -184,11 +198,10 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
               times[i] !== times[i + 1] ||
               sameTimeEmployees[i] !== sameTimeEmployees[i + 1]
             }
-            sameTimeEmployees={
-              sameTimeEmployeesNames.find((group) =>
-                group.some((emp) => emp.name === item.name)
-              ) || []
-            }
+            sameTimeEmployees={employees.map((emp, index) => ({
+              ...emp,
+              time: times[index],
+            }))}
             visibleCards={visibleCards}
             setVisibleCards={setVisibleCards}
             containerRef={containerRef}
