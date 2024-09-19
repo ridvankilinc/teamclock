@@ -37,8 +37,8 @@ const Clock = memo(function Clock() {
   const { secondDegrees, minuteDegrees, hourDegrees } = useMemo(
     () => ({
       secondDegrees: (seconds / 60) * 360,
-      minuteDegrees: (((minutes + seconds / 60) / 60) * 360) % 360,
-      hourDegrees: (hours > 12 ? hours % 12 : hours) * 30 + minutes * 0.5,
+      minuteDegrees: (minutes + seconds / 60) * 6,
+      hourDegrees: (hours % 12) * 30 + minutes * 0.5,
     }),
     [seconds, minutes, hours]
   );

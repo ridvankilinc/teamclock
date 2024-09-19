@@ -19,27 +19,27 @@ const employees = [
   {
     avatar: "https://i.pravatar.cc/150?img=58",
     name: "Ethan",
-    region: "San Francisco, USA",
+    region: "San Francisco, America",
   },
   {
     avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
     name: "Ahmet",
-    region: "Istanbul, Turkiye",
+    region: "Istanbul, Turkey",
   },
   {
     avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
     name: "Ahmet",
-    region: "Istanbul, Turkiye",
+    region: "Istanbul, Turkey",
   },
   {
     avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
     name: "Ahmet",
-    region: "Istanbul, Turkiye",
+    region: "Istanbul, Turkey",
   },
   {
     avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
     name: "Ahmet",
-    region: "Istanbul, Turkiye",
+    region: "Istanbul, Turkey",
   },
   {
     avatar: "https://i.pravatar.cc/150?img=59",

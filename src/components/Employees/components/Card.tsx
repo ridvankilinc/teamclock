@@ -243,7 +243,9 @@ const Card = ({
                 animate={{ opacity: isOpen ? 0 : 1 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
               >
-                <h4 className="text-lg font-bold ">{name}</h4>
+                <h4 className="text-lg font-bold truncate max-w-24 md:max-w-32">
+                  {name}
+                </h4>
                 <TimeDisplay
                   time={time}
                   timeDiff={timeDiff}
@@ -254,7 +256,9 @@ const Card = ({
                 animate={{ opacity: isOpen ? 0 : 1 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
               >
-                <p className="text-gray-500 text-sm ">{region}</p>
+                <p className="text-gray-500 text-sm truncate max-w-44 md:max-w-52">
+                  {region}
+                </p>
               </motion.div>
             </div>
           </div>

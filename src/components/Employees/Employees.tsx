@@ -46,11 +46,14 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
     countSameTimeEmployees();
   }, [times]);
 
-  const findTimezone = useCallback((city: string) => {
+  const findTimezone = useCallback((city: string, country: string) => {
     try {
       const lowerCity = city.toLowerCase();
+      const lowerCountry = country.toLowerCase();
 
-      const timezones = findFromCityStateProvince(`${lowerCity}`);
+      const timezones = findFromCityStateProvince(
+        `${lowerCity}, ${lowerCountry}`
+      );
 
       if (timezones.length > 0) return timezones[0].timezone;
       console.log(timezones[0].timezone);
@@ -62,8 +65,9 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   useEffect(() => {
     const timezones = employees
       .map((employee: EmployeeProps) => {
-        const [city] = employee.region.split(",").map((s) => s.trim());
-        return findTimezone(city);
+        const [city, country] = employee.region.split(",").map((s) => s.trim());
+
+        return findTimezone(city, country);
       })
       .filter((timezone): timezone is string => timezone !== undefined);
     setEmployeeTimezones(timezones);
