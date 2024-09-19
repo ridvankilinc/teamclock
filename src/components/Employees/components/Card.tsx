@@ -6,6 +6,17 @@ import cn from "classnames";
 import { useTeamClock } from "@/context/TeamClockContext";
 import { AnimatePresence, motion } from "framer-motion";
 
+interface TransitionProps {
+  default?: {
+    duration?: number;
+    ease?: string;
+  };
+  opacity?: {
+    duration?: number;
+    ease?: string;
+  };
+}
+
 interface CardProps extends EmployeeProps {
   time: string;
   timeDiff: string;
@@ -158,7 +169,9 @@ const Card = ({
 
   const renderDivContent = useMemo(() => {
     let animateContent: any = {};
-    let transition = { duration: 0.4, ease: "easeInOut" };
+    let transition: TransitionProps = {
+      default: { duration: 0.4, ease: "easeInOut" },
+    };
 
     if (clockRect) {
       if (isOpen) {
@@ -190,8 +203,8 @@ const Card = ({
             opacity: [0, 1],
           };
           transition = {
-            opacity: { duration: 0.4, ease: "easeInOut" },
             default: { duration: 0, ease: "easeInOut" },
+            opacity: { duration: 0.4, ease: "easeInOut" },
           };
         }
       } else {
