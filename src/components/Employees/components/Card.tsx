@@ -56,7 +56,7 @@ const Card = ({
 
   const modalRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const counterRef = useRef<HTMLDivElement>(null);
+  const counterRef = useRef<HTMLButtonElement>(null);
 
   let divAnimate = { top: 0, left: 0 };
 

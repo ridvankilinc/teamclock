@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from "react";
 import { EmployeeProps } from "../types";
-import { getTimeZones } from "@vvo/tzdb";
+import { findFromCityStateProvince } from "city-timezones";
 import Card from "./components/Card";
 import { DateTime } from "luxon";
 import { useTeamClock } from "@/context/TeamClockContext";
@@ -9,7 +9,6 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
   const [times, setTimes] = useState<string[]>([]);
-  const [timezones, setTimezones] = useState<string[]>([]);
   const [visibleCards, setVisibleCards] = useState<EmployeeProps[]>([]);
   const [employeeTimezones, setEmployeeTimezones] = useState<string[]>([]);
   const [sameTimeEmployees, setSameTimeEmployees] = useState<number[]>([]);
@@ -47,55 +46,26 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
     countSameTimeEmployees();
   }, [times]);
 
-  const findTimezone = useCallback((city: string, country: string): string => {
+  const findTimezone = useCallback((city: string) => {
     try {
-      const allTimeZones = getTimeZones();
       const lowerCity = city.toLowerCase();
-      const lowerCountry = country.toLowerCase();
 
-      const cityMatch = allTimeZones.find((tz) =>
-        tz.mainCities.some((c) => c.toLowerCase() === lowerCity)
-      );
+      const timezones = findFromCityStateProvince(`${lowerCity}`);
 
-      if (cityMatch) return cityMatch.name;
-
-      const countryMatch = allTimeZones.find((tz) =>
-        tz.countryName.toLowerCase().includes(lowerCountry)
-      );
-
-      if (countryMatch) return countryMatch.name;
-
-      const closestMatch = allTimeZones.reduce(
-        (closest, tz) => {
-          const cityScore = tz.mainCities.some(
-            (c) =>
-              lowerCity.includes(c.toLowerCase()) ||
-              c.toLowerCase().includes(lowerCity)
-          )
-            ? 1
-            : 0;
-          const countryScore = tz.countryName
-            .toLowerCase()
-            .includes(lowerCountry)
-            ? 1
-            : 0;
-          const score = cityScore + countryScore;
-          return score > closest.score ? { name: tz.name, score } : closest;
-        },
-        { name: "UTC", score: -1 }
-      );
-
-      return closestMatch.name;
+      if (timezones.length > 0) return timezones[0].timezone;
+      console.log(timezones[0].timezone);
     } catch (error) {
       return "UTC";
     }
   }, []);
 
   useEffect(() => {
-    const timezones = employees.map((employee: EmployeeProps) => {
-      const [city, country] = employee.region.split(",").map((s) => s.trim());
-      return findTimezone(city, country);
-    });
+    const timezones = employees
+      .map((employee: EmployeeProps) => {
+        const [city] = employee.region.split(",").map((s) => s.trim());
+        return findTimezone(city);
+      })
+      .filter((timezone): timezone is string => timezone !== undefined);
     setEmployeeTimezones(timezones);
   }, [employees, findTimezone]);
 
@@ -175,7 +145,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
       <motion.div
         ref={containerRef}
         className={cn(
-          "flex flex-col gap-1 overflow-x-hidden max-h-96 custom-scrollbar pr-2",
+          "flex flex-col gap-1 overflow-x-hidden max-h-80 custom-scrollbar pr-2",
           {
             relative: isInitialRender || (!isOpen && animationComplete),
           }

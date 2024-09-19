@@ -37,7 +37,7 @@ const Clock = memo(function Clock() {
   const { secondDegrees, minuteDegrees, hourDegrees } = useMemo(
     () => ({
       secondDegrees: (seconds / 60) * 360,
-      minuteDegrees: ((minutes * 60 + seconds) / 3600) * 360,
+      minuteDegrees: (((minutes + seconds / 60) / 60) * 360) % 360,
       hourDegrees: (hours > 12 ? hours % 12 : hours) * 30 + minutes * 0.5,
     }),
     [seconds, minutes, hours]
@@ -173,7 +173,7 @@ const Clock = memo(function Clock() {
     }
 
     return `conic-gradient(from ${startAngle}deg, 
-      rgba(180, 180, 180, 0.1) 0deg ${sweepAngle}deg, 
+      rgba(180, 180, 180, 0.15) 0deg ${sweepAngle}deg, 
       transparent ${sweepAngle}deg 360deg)`;
   }, [hoveredTime, hours, minutes, getTimeDifference]);
 
@@ -265,9 +265,9 @@ const Clock = memo(function Clock() {
       })}
 
       <div
-        className="absolute z-10 w-1.5 h-36 rounded bg-gray-600 origin-center transition-transform duration-300"
+        className="absolute z-10 w-1.5 h-36 rounded bg-gray-600 origin-center transition-transform duration-500"
         style={{
-          transform: `rotate(${minuteDegrees % 360}deg) translateY(-30%)`,
+          transform: `rotate(${minuteDegrees}deg) translateY(-30%)`,
         }}
       />
 

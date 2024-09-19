@@ -26,81 +26,81 @@ const employees = [
     name: "Ahmet",
     region: "Istanbul, Turkiye",
   },
-  // {
-  //   avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
-  //   name: "Ahmet",
-  //   region: "Istanbul, Turkiye",
-  // },
-  // {
-  //   avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
-  //   name: "Ahmet",
-  //   region: "Istanbul, Turkiye",
-  // },
-  // {
-  //   avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
-  //   name: "Ahmet",
-  //   region: "Istanbul, Turkiye",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=59",
-  //   name: "Ahmet",
-  //   region: "Rosario, Argentina",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=59",
-  //   name: "Ahmet",
-  //   region: "Rosario, Argentina",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=59",
-  //   name: "Ahmet",
-  //   region: "Rosario, Argentina",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=60",
-  //   name: "Ahmet",
-  //   region: "Reykjavik, Iceland",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=55",
-  //   name: "Ahmet",
-  //   region: "Porto, Portugal",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=62",
-  //   name: "Ahmet",
-  //   region: "Kutaisi, Georgia",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=63",
-  //   name: "Ahmet",
-  //   region: "Chelyabinsk, Russia",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=64",
-  //   name: "Ahmet",
-  //   region: "Osh, Kyrgyzstan",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=65",
-  //   name: "Ahmet",
-  //   region: "Bangkok, Thailand",
-  // },
+  {
+    avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
+    name: "Ahmet",
+    region: "Istanbul, Turkiye",
+  },
+  {
+    avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
+    name: "Ahmet",
+    region: "Istanbul, Turkiye",
+  },
+  {
+    avatar: "https://i.ibb.co/nLSRCCs/image1.jpg",
+    name: "Ahmet",
+    region: "Istanbul, Turkiye",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=59",
+    name: "Ahmet",
+    region: "Rosario, Argentina",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=59",
+    name: "Ahmet",
+    region: "Rosario, Argentina",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=59",
+    name: "Ahmet",
+    region: "Rosario, Argentina",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=60",
+    name: "Ahmet",
+    region: "Reykjavik, Iceland",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=55",
+    name: "Ahmet",
+    region: "Porto, Portugal",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=62",
+    name: "Ahmet",
+    region: "Kutaisi, Georgia",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=63",
+    name: "Ahmet",
+    region: "Chelyabinsk, Russia",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=64",
+    name: "Ahmet",
+    region: "Osh, Kyrgyzstan",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=65",
+    name: "Ahmet",
+    region: "Bangkok, Thailand",
+  },
   {
     avatar: "https://i.pravatar.cc/150?img=66",
     name: "Ahmet",
     region: "Manila, Philippines",
   },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=67",
-  //   name: "Ahmet",
-  //   region: "Tokyo, Japan",
-  // },
-  // {
-  //   avatar: "https://i.pravatar.cc/150?img=68",
-  //   name: "Ahmet",
-  //   region: "Wellington, New Zealand",
-  // },
+  {
+    avatar: "https://i.pravatar.cc/150?img=67",
+    name: "Ahmet",
+    region: "Tokyo, Japan",
+  },
+  {
+    avatar: "https://i.pravatar.cc/150?img=68",
+    name: "Ahmet",
+    region: "Wellington, New Zealand",
+  },
 ];
 
 const TeamClocks = () => {
