@@ -1,4 +1,4 @@
-import { ClockRect, TeamClockContextProps } from "@/components/types";
+import { Rect, TeamClockContextProps } from "@/components/types";
 import {
   createContext,
   PropsWithChildren,
@@ -16,9 +16,12 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
   const [selectedTimezone, setSelectedTimezone] = useState<string | null>(null);
   const [employeeTimes, setEmployeeTimes] = useState<string[] | null>([]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [clockRect, setClockRect] = useState<ClockRect | null>(null);
+  const [containerRect, setContainerRect] = useState<Rect | null>(null);
+  const [centerRect, setCenterRect] = useState<Rect | null>(null);
+  const [clockRect, setClockRect] = useState<Rect | null>(null);
   const [animationComplete, setAnimationComplete] = useState<boolean>(false);
   const [isInitialRender, setIsInitialRender] = useState(true);
+  const [isSmallScreen, setIsSmallScreen] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -37,6 +40,19 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 768);
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <TeamClockContext.Provider
       value={{
@@ -48,12 +64,18 @@ export const TeamClockProvider = ({ children }: PropsWithChildren) => {
         setEmployeeTimes,
         hoveredIndex,
         setHoveredIndex,
+        containerRect,
+        setContainerRect,
+        centerRect,
+        setCenterRect,
         clockRect,
         setClockRect,
         animationComplete,
         setAnimationComplete,
         isInitialRender,
         setIsInitialRender,
+        isSmallScreen,
+        setIsSmallScreen,
       }}
     >
       {children}

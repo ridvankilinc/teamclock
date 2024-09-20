@@ -7,12 +7,18 @@ export interface TeamClockContextProps {
   setEmployeeTimes: React.Dispatch<React.SetStateAction<string[] | null>>;
   hoveredIndex: number | null;
   setHoveredIndex: React.Dispatch<React.SetStateAction<number | null>>;
-  clockRect: ClockRect | null;
-  setClockRect: React.Dispatch<React.SetStateAction<ClockRect | null>>;
+  containerRect: Rect | null;
+  setContainerRect: React.Dispatch<React.SetStateAction<Rect | null>>;
+  centerRect: Rect | null;
+  setCenterRect: React.Dispatch<React.SetStateAction<Rect | null>>;
+  clockRect: Rect | null;
+  setClockRect: React.Dispatch<React.SetStateAction<Rect | null>>;
   animationComplete: boolean;
   setAnimationComplete: React.Dispatch<React.SetStateAction<boolean>>;
   isInitialRender: boolean;
   setIsInitialRender: React.Dispatch<React.SetStateAction<boolean>>;
+  isSmallScreen: boolean | null;
+  setIsSmallScreen: React.Dispatch<React.SetStateAction<boolean | null>>;
 }
 
 export interface EmployeeProps {
@@ -23,7 +29,7 @@ export interface EmployeeProps {
   time?: string;
 }
 
-export interface ClockRect {
+export interface Rect {
   width: number;
   height: number;
   left: number;

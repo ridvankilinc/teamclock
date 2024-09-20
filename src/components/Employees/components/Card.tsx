@@ -52,10 +52,13 @@ const Card = ({
 }: CardProps) => {
   const {
     isOpen,
+    containerRect,
+    centerRect,
     clockRect,
     employeeTimes,
     animationComplete,
     isInitialRender,
+    isSmallScreen,
   } = useTeamClock();
   const [sameRadiusWidth, setSameRadiusWidth] = useState(0);
   const [sameTimeEmployeesCount, setSameTimeEmployeesCount] =
@@ -139,28 +142,23 @@ const Card = ({
 
   useEffect(() => {
     if (counterRef.current) {
-      const updateModalPosition = () => {
-        const rect = counterRef.current?.getBoundingClientRect();
-        if (rect) {
-          setModalPosition({
-            top: rect.top,
-            left: rect.left,
-          });
-        }
-      };
-
-      updateModalPosition();
-      window.addEventListener("resize", updateModalPosition);
-      return () => window.removeEventListener("resize", updateModalPosition);
+      const rect = counterRef.current?.getBoundingClientRect();
+      if (rect) {
+        setModalPosition({
+          top: rect.top,
+          left: rect.left,
+        });
+      }
     }
   }, [isOpen]);
 
   useEffect(() => {
-    if (cardRef.current) {
-      setInitialX(cardRef.current.getBoundingClientRect().left);
-      setInitialY(cardRef.current.getBoundingClientRect().top);
+    if (cardRef.current && containerRect) {
+      const cardRect = cardRef.current.getBoundingClientRect();
+      setInitialX(cardRect.left - containerRect.left);
+      setInitialY(cardRect.top - containerRect.top);
     }
-  }, []);
+  }, [containerRect, isSmallScreen]);
 
   const isVisible = useMemo(
     () => visibleCards.some((card) => card.id === id),
@@ -173,7 +171,7 @@ const Card = ({
       default: { duration: 0.4, ease: "easeInOut" },
     };
 
-    if (clockRect) {
+    if (clockRect && containerRect && centerRect) {
       if (isOpen) {
         const timeParts = time.split(":");
         const hours = parseInt(timeParts[0]) % 12;
@@ -182,20 +180,24 @@ const Card = ({
         const angle = ((hours + minutes / 60) * Math.PI) / 6 - Math.PI / 2;
         const radius = clockRect.width / 2 - 20 - sameRadiusWidth;
 
-        const clockCenterX = clockRect.left + clockRect.width;
-        const clockCenterY = clockRect.top + clockRect.height / 2;
+        const clockCenterX =
+          centerRect.left -
+          containerRect.left +
+          (isSmallScreen ? -17 : clockRect.width / 2 + 23);
+        const clockCenterY =
+          centerRect.top - containerRect.top + (isSmallScreen ? -33 : -17);
 
-        const y = clockCenterY + radius * Math.sin(angle);
         const x = clockCenterX + radius * Math.cos(angle);
+        const y = clockCenterY + radius * Math.sin(angle);
 
         animateContent = {
-          top: y - 32,
-          left: x + 12,
+          top: y,
+          left: x,
           opacity: 1,
         };
 
-        divAnimate.top = y - 20;
-        divAnimate.left = x + 20;
+        divAnimate.top = y;
+        divAnimate.left = x;
 
         if (!isVisible) {
           animateContent = {
@@ -234,9 +236,9 @@ const Card = ({
     return (
       <AnimatePresence initial={false}>
         <motion.div
-          className={cn(
-            "absolute flex justify-between px-2 w-full md:max-w-72"
-          )}
+          className={cn("absolute flex justify-between w-full md:max-w-72", {
+            "px-2": !isOpen,
+          })}
           onMouseEnter={animationComplete ? onMouseEnter : undefined}
           onMouseLeave={animationComplete ? onMouseLeave : undefined}
           animate={animateContent}
@@ -244,9 +246,9 @@ const Card = ({
           layout
         >
           <div
-            className={cn(
-              "flex justify-center gap-2 w-full md:max-w-72 items-center"
-            )}
+            className={cn("flex justify-center gap-2 w-full md:max-w-64", {
+              "items-center": !isOpen,
+            })}
           >
             <motion.img
               src={avatar}
@@ -258,7 +260,9 @@ const Card = ({
             />
             <div className="w-full tracking-tighter">
               <motion.div
-                className={cn("flex justify-between")}
+                className={cn("flex justify-between", {
+                  "pr-4": isSmallScreen,
+                })}
                 animate={{ opacity: isOpen ? 0 : 1 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
               >
@@ -284,13 +288,15 @@ const Card = ({
     );
   }, [
     clockRect,
+    containerRect,
+    centerRect,
+    isOpen,
     animationComplete,
     onMouseEnter,
     onMouseLeave,
     avatar,
     name,
     sameTimeEmployeesCount,
-    isOpen,
     time,
     timeDiff,
     isHovered,
@@ -302,15 +308,8 @@ const Card = ({
     isInitialRender,
     initialY,
     initialX,
+    isSmallScreen,
   ]);
-
-  const toggleModal = (event: React.MouseEvent) => {
-    event.stopPropagation();
-    setShowModal((prev) => !prev);
-    if (!showModal) {
-      updateModalPosition();
-    }
-  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -331,28 +330,30 @@ const Card = ({
     };
   }, [showModal]);
 
-  const updateModalPosition = useCallback(() => {
-    if (counterRef.current) {
-      const rect = counterRef.current.getBoundingClientRect();
-      setModalPosition({
-        top: rect.top - rect.height / 2,
-        left: rect.left + 45,
-      });
-    }
-  }, []);
-
   useEffect(() => {
+    const updateModalPosition = () => {
+      if (counterRef.current && containerRect) {
+        const rect = counterRef.current.getBoundingClientRect();
+        setModalPosition({
+          top: rect.top - rect.height,
+          left: rect.left + rect.width + 4,
+        });
+      }
+    };
+
+    updateModalPosition();
     if (showModal) {
       updateModalPosition();
     }
-  }, [showModal, updateModalPosition]);
 
-  useEffect(() => {
     window.addEventListener("resize", updateModalPosition);
-    return () => window.removeEventListener("resize", updateModalPosition);
-  }, [updateModalPosition]);
 
-  const renderModal = () => {
+    return () => {
+      window.removeEventListener("resize", updateModalPosition);
+    };
+  }, [containerRect, showModal]);
+
+  const renderModal = useMemo(() => {
     const filteredEmployees = sameTimeEmployees.filter((employee) => {
       if (!employee || !employee.time) {
         return false;
@@ -377,7 +378,7 @@ const Card = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="bg-white absolute shadow-md rounded-xl z-30 p-1 tracking-tighter"
+            className="bg-white fixed shadow-md rounded-xl z-30 p-1 tracking-tighter border"
             style={{
               top: `${modalPosition.top}px`,
               left: `${modalPosition.left}px`,
@@ -407,12 +408,18 @@ const Card = ({
         )}
       </AnimatePresence>
     );
-  };
+  }, [
+    modalPosition.left,
+    modalPosition.top,
+    sameTimeEmployees,
+    showModal,
+    time,
+  ]);
   return (
     <div
       ref={cardRef}
       className={cn(
-        "cursor-default flex items-center rounded-2xl min-h-16 border border-transparent overflow-hidden",
+        "cursor-default flex items-center rounded-2xl min-h-16 border border-transparent overflow-hidden p-2",
         {
           "hover:bg-gray-100 hover:border-gray-200":
             !isOpen && animationComplete,
@@ -420,11 +427,11 @@ const Card = ({
       )}
     >
       {renderDivContent}
-      {renderModal()}
+      {renderModal}
       {isOpen && sameTimeEmployeesCount > 2 && isLastWithSameTime && (
         <motion.button
           ref={counterRef}
-          onClick={toggleModal}
+          onClick={() => setShowModal((prev) => !prev)}
           className="size-10 rounded-full bg-gray-100 flex justify-center items-center absolute hover:bg-gray-200 z-10 cursor-pointer"
           style={{ top: divAnimate.top, left: divAnimate.left, opacity: 0 }}
           animate={{ opacity: isOpen ? 1 : 0 }}

@@ -3,6 +3,7 @@ import ToggleButton from "./ToggleButton";
 import Clock from "./Clock/Clock";
 import cn from "classnames";
 import Employees from "./Employees/Employees";
+import { useEffect, useRef } from "react";
 
 const employees = [
   {
@@ -94,18 +95,42 @@ const employees = [
 ];
 
 const TeamClocks = () => {
-  const { isOpen } = useTeamClock();
+  const { isOpen, setContainerRect, isSmallScreen } = useTeamClock();
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      const clockRect = containerRef.current.getBoundingClientRect();
+      setContainerRect({
+        width: clockRect.width,
+        height: clockRect.height,
+        left: clockRect.left,
+        top: clockRect.top,
+      });
+    }
+  }, [setContainerRect]);
+  console.log(isSmallScreen);
 
   return (
-    <div className="relative flex flex-col md:flex-row rounded-3xl container max-w-sm md:max-w-2xl bg-white overflow-hidden md:max-h-96 ">
+    <div
+      ref={containerRef}
+      className={cn(
+        "relative flex flex-col md:flex-row rounded-3xl container max-w-xs md:max-w-2xl bg-white overflow-hidden md:max-h-96 ",
+        { "h-[35rem]": isSmallScreen }
+      )}
+    >
       <div
-        className="flex flex-col p-8 w-full justify-center"
+        className={cn("flex flex-col p-8 w-full gap-6", {
+          "p-4 gap-3": isSmallScreen,
+        })}
         style={{
           minWidth: isOpen ? "100%" : "50%",
-          transition: "min-width 0.4s ease-in-out",
+          minHeight: isSmallScreen && isOpen ? "100%" : "50%",
+          transition: "min-height 0.4s ease-in-out, min-width 0.4s ease-in-out",
         }}
       >
-        <div className="flex justify-between items-center gap-4 mb-8 md:max-w-64">
+        <div className="flex justify-between items-center gap-4 md:max-w-64">
           <div className="text-3xl tracking-tighter font-bold">Team</div>
           <ToggleButton />
         </div>
@@ -114,9 +139,12 @@ const TeamClocks = () => {
         </div>
       </div>
       <div
-        className={cn("p-6 bg-gray-50 md:rounded-r-2xl pr-2")}
+        className={cn("p-6 bg-gray-50 md:rounded-r-2xl pr-2", {
+          "p-3": isSmallScreen,
+        })}
         style={{
           minWidth: isOpen ? "0%" : "50%",
+          minHeight: isSmallScreen && isOpen ? "0" : "40%",
           transition: "0.4s ease-in-out",
         }}
       >

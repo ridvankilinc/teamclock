@@ -20,6 +20,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
     isOpen,
     animationComplete,
     isInitialRender,
+    isSmallScreen,
   } = useTeamClock();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -152,6 +153,7 @@ const Employees = ({ employees }: { employees: EmployeeProps[] }) => {
           "flex flex-col gap-1 overflow-x-hidden max-h-48 md:max-h-80 custom-scrollbar pr-2",
           {
             relative: isInitialRender || (!isOpen && animationComplete),
+            "max-h-0": isSmallScreen && isOpen,
           }
         )}
       >

@@ -11,10 +11,12 @@ const Clock = memo(function Clock() {
     selectedTimezone,
     employeeTimes,
     hoveredIndex,
+    setCenterRect,
     setClockRect,
   } = useTeamClock();
   const [time, setTime] = useState<Date>(new Date());
   const clockRef = useRef<HTMLDivElement>(null);
+  const centerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => (setTime(new Date()), 1000));
@@ -178,27 +180,28 @@ const Clock = memo(function Clock() {
   }, [hoveredTime, hours, minutes, getTimeDifference]);
 
   useEffect(() => {
-    const updateClockRect = () => {
-      if (clockRef.current) {
-        const rect = clockRef.current.getBoundingClientRect();
-        setClockRect({
-          width: rect.width,
-          height: rect.height,
-          left: rect.left,
-          top: rect.top,
-        });
-      }
-    };
-
-    updateClockRect();
-    window.addEventListener("resize", updateClockRect);
-    return () => window.removeEventListener("resize", updateClockRect);
-  }, [isOpen, setClockRect]);
+    if (clockRef.current && centerRef.current) {
+      const clockRect = clockRef.current.getBoundingClientRect();
+      setClockRect({
+        width: clockRect.width,
+        height: clockRect.height,
+        left: clockRect.left,
+        top: clockRect.top,
+      });
+      const centerRect = centerRef.current.getBoundingClientRect();
+      setCenterRect({
+        width: centerRect.width,
+        height: centerRect.height,
+        left: centerRect.left,
+        top: centerRect.top,
+      });
+    }
+  }, [setCenterRect, setClockRect]);
 
   return (
     <div
       ref={clockRef}
-      className="relative flex items-center justify-center size-64 rounded-full mx-auto"
+      className="relative flex items-center justify-center size-64 rounded-full"
     >
       <div
         className="absolute inset-0 rounded-full"
@@ -278,7 +281,10 @@ const Clock = memo(function Clock() {
         }}
       />
 
-      <div className="absolute z-30 size-1.5 bg-red-400 rounded-full origin-center" />
+      <div
+        ref={centerRef}
+        className="absolute z-30 size-1.5 bg-red-400 rounded-full origin-center"
+      />
 
       <Digital time={time} />
     </div>
