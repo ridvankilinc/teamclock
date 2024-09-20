@@ -193,7 +193,7 @@ const Clock = memo(function Clock() {
     updateClockRect();
     window.addEventListener("resize", updateClockRect);
     return () => window.removeEventListener("resize", updateClockRect);
-  }, [setClockRect]);
+  }, [isOpen, setClockRect]);
 
   return (
     <div

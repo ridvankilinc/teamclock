@@ -234,14 +234,20 @@ const Card = ({
     return (
       <AnimatePresence initial={false}>
         <motion.div
-          className={"absolute flex justify-between p-2 min-w-72"}
+          className={cn(
+            "absolute flex justify-between px-2 w-full md:max-w-72"
+          )}
           onMouseEnter={animationComplete ? onMouseEnter : undefined}
           onMouseLeave={animationComplete ? onMouseLeave : undefined}
           animate={animateContent}
           transition={transition}
           layout
         >
-          <div className={cn("flex gap-2 items-center w-full")}>
+          <div
+            className={cn(
+              "flex justify-center gap-2 w-full md:max-w-72 items-center"
+            )}
+          >
             <motion.img
               src={avatar}
               alt={`${name} avatar's`}
@@ -256,9 +262,7 @@ const Card = ({
                 animate={{ opacity: isOpen ? 0 : 1 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
               >
-                <h4 className="text-lg font-bold truncate max-w-24 md:max-w-32">
-                  {name}
-                </h4>
+                <h4 className="text-lg font-bold truncate max-w-32">{name}</h4>
                 <TimeDisplay
                   time={time}
                   timeDiff={timeDiff}
@@ -269,7 +273,7 @@ const Card = ({
                 animate={{ opacity: isOpen ? 0 : 1 }}
                 transition={{ duration: 0.4, ease: "easeInOut" }}
               >
-                <p className="text-gray-500 text-sm truncate max-w-44 md:max-w-52">
+                <p className="text-gray-500 text-sm truncate max-w-52">
                   {region}
                 </p>
               </motion.div>
@@ -280,21 +284,21 @@ const Card = ({
     );
   }, [
     clockRect,
-    isOpen,
+    animationComplete,
     onMouseEnter,
     onMouseLeave,
-    isVisible,
     avatar,
     name,
     sameTimeEmployeesCount,
+    isOpen,
     time,
     timeDiff,
     isHovered,
     region,
     sameRadiusWidth,
     divAnimate,
+    isVisible,
     id,
-    animationComplete,
     isInitialRender,
     initialY,
     initialX,
@@ -408,7 +412,7 @@ const Card = ({
     <div
       ref={cardRef}
       className={cn(
-        "cursor-default flex items-center rounded-2xl min-h-16 min-w-72 border border-transparent ",
+        "cursor-default flex items-center rounded-2xl min-h-16 border border-transparent overflow-hidden",
         {
           "hover:bg-gray-100 hover:border-gray-200":
             !isOpen && animationComplete,
