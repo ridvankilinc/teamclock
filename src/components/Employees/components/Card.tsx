@@ -183,9 +183,9 @@ const Card = ({
         const clockCenterX =
           centerRect.left -
           containerRect.left +
-          (isSmallScreen ? -17 : clockRect.width / 2 + 23);
+          (isSmallScreen ? -11 : clockRect.width / 2 + 32);
         const clockCenterY =
-          centerRect.top - containerRect.top + (isSmallScreen ? -33 : -17);
+          centerRect.top - containerRect.top + (isSmallScreen ? -33 : -10);
 
         const x = clockCenterX + radius * Math.cos(angle);
         const y = clockCenterY + radius * Math.sin(angle);
