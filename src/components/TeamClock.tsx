@@ -117,7 +117,7 @@ const TeamClocks = () => {
       ref={containerRef}
       className={cn(
         "relative flex flex-col md:flex-row rounded-3xl container max-w-xs md:max-w-2xl bg-white overflow-hidden md:max-h-96 ",
-        { "h-[35rem]": isSmallScreen }
+        { "h-[38rem]": isSmallScreen }
       )}
     >
       <div
